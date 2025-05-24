@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Catalog with LIFF Send</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Sarabun&display=swap');
     body {
       font-family: "Sarabun", sans-serif;
       margin: 0;
@@ -48,12 +47,6 @@
       font-weight: bold;
       color: #e91e63;
       margin-top: 4px;
-    }
-    .product-price-del {
-      text-decoration: line-through;
-      color: #999;
-      font-weight: normal;
-      margin-right: 6px;
     }
     .add-btn {
       background: #00aa4f;
@@ -111,7 +104,12 @@
       justify-content: space-between;
       margin-bottom: 6px;
       align-items: center;
-      font-size: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .cart-item > div:first-child {
+      flex: 1 1 100%;
+      font-weight: bold;
     }
     .cart-item button {
       background: red;
@@ -121,16 +119,15 @@
       border-radius: 6px;
       cursor: pointer;
       margin-left: 10px;
+      flex: 0 0 auto;
     }
     .cart-total > div {
       margin-top: 4px;
-      font-size: 14px;
     }
     .cart-total strong {
       font-weight: bold;
       margin-top: 10px;
       display: block;
-      font-size: 16px;
     }
     #btnSendAdmin {
       background: #00aa4f;
@@ -139,6 +136,7 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      width: 100%;
       font-size: 16px;
     }
   </style>
@@ -151,7 +149,7 @@
 
 <div class="cart-bar" id="cartBar" style="display:none;">
   <div class="cart-info" id="cartSummary"></div>
-  <button id="btnViewCart" class="view-cart-btn">ดูตะกร้า (กดซ้ำเพื่อปิด)</button>
+  <button id="btnViewCart" class="view-cart-btn">ดูตะกร้า</button>
 </div>
 
 <div class="cart-popup" id="cartPopup">
@@ -167,21 +165,18 @@
 <script>
   const liffId = "2007471898-ElJVq449";
 
-  // ตัวอย่างสินค้า พร้อมโปรโมชัน 2 แบบ:
-  // - buyXgetYfree: ซื้อ X แถม Y
-  // - normal: ราคาขีดฆ่า + ราคาปกติ
   const products = [
-    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: 'buyXgetYfree', promoX: 1, promoY: 1 },
-    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: 'normal', promoPriceDel: 1000 },
-    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null },
-    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg', promoType: null }
+    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
   ];
 
   let cart = [];
@@ -200,188 +195,166 @@
     products.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product-item';
-
-      let promoHtml = '';
-      if (p.promoType === 'buyXgetYfree') {
-        promoHtml = `<div style="color:#e91e63; font-weight:bold;">ซื้อ ${p.promoX} แถม ${p.promoY}</div>`;
-      } else if (p.promoType === 'normal' && p.promoPriceDel) {
-        promoHtml = `<div>
-          <span class="product-price-del">${p.promoPriceDel} บาท</span>
-          <span class="product-price">${p.price} บาท</span>
-        </div>`;
-      } else {
-        promoHtml = `<div class="product-price">${p.price} บาท</div>`;
-      }
-
       div.innerHTML = `
         <img src="${p.image}" alt="${p.name}" />
-        <div class="product-info">${p.name}</div>
-        ${promoHtml}
-        <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่มลงตะกร้า</button>
+        <div class="product-info">
+          <div>${p.name}</div>
+          <div class="product-price">฿${p.price.toLocaleString()}</div>
+        </div>
+        <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
       `;
       productListEl.appendChild(div);
     });
   }
 
-  function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }
-
-  function loadCart() {
-    const saved = localStorage.getItem('cart');
-    if (saved) {
-      cart = JSON.parse(saved);
-    }
-  }
-
-  function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-
-    const item = cart.find(i => i.id === productId);
-    if (item) {
-      item.quantity++;
+  function addToCart(id) {
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+    const cartItem = cart.find(item => item.id === id);
+    if (cartItem) {
+      cartItem.quantity++;
     } else {
-      cart.push({ id: product.id, name: product.name, price: product.price, promoType: product.promoType, promoX: product.promoX, promoY: product.promoY, promoPriceDel: product.promoPriceDel, quantity: 1 });
+      cart.push({ ...prod, quantity: 1 });
     }
-
-    saveCart();
     updateCartUI();
-    showCartBar();
   }
 
-  function removeFromCart(productId) {
-    cart = cart.filter(i => i.id !== productId);
-    saveCart();
+  function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
     updateCartUI();
-    if (cart.length === 0) {
-      hideCartBar();
-      closeCartPopup();
-    }
   }
 
-  function updateCartUI() {
-    if (cart.length === 0) {
-      cartSummaryEl.textContent = 'ตะกร้าว่างเปล่า';
-      hideCartBar();
-      closeCartPopup();
-      return;
-    }
-
-    showCartBar();
-
-    // สรุปสินค้าในตะกร้า (จำนวนรวมและราคาสุทธิ)
-    let totalQty = 0;
-    let totalPrice = 0;
-
-    cart.forEach(item => {
-      totalQty += item.quantity;
-
-      // คำนวณราคาตามโปรโมชัน
-      if (item.promoType === 'buyXgetYfree') {
-        // ตัวอย่าง: ซื้อ 1 แถม 1 = ได้ 2 ชิ้นแต่จ่ายแค่ 1 ชิ้น
-        const groups = Math.floor(item.quantity / (item.promoX + item.promoY));
-        const remainder = item.quantity % (item.promoX + item.promoY);
-        const paidQty = groups * item.promoX + Math.min(remainder, item.promoX);
-        totalPrice += paidQty * item.price;
-      } else {
-        totalPrice += item.quantity * item.price;
-      }
-    });
-
-    cartSummaryEl.textContent = `สินค้า ${totalQty} ชิ้น | รวม ${totalPrice.toLocaleString()} บาท`;
-
-    // แสดงรายการสินค้าในตะกร้า popup
+    btnViewCart.onclick = () => {
+    if (cartPopup.style.display === 'block') {
+    cartPopup.style.display = 'none';
+    btnViewCart.textContent = 'ดูตะกร้า';
+    } else {
+    cartPopup.style.display = 'block';
+    btnViewCart.textContent = 'ซ่อนตะกร้า';
     renderCartItems();
-  }
+    }
+  };
 
   function renderCartItems() {
+    cartItemsEl.innerHTML = '';
     if (cart.length === 0) {
       cartItemsEl.innerHTML = '<p>ตะกร้าว่างเปล่า</p>';
       cartTotalEl.textContent = '';
       return;
     }
 
-    cartItemsEl.innerHTML = '';
-    let totalPrice = 0;
-
     cart.forEach(item => {
-      // ราคาตามโปรโมชันเหมือนเดิม
-      let itemTotal = 0;
-      if (item.promoType === 'buyXgetYfree') {
-        const groups = Math.floor(item.quantity / (item.promoX + item.promoY));
-        const remainder = item.quantity % (item.promoX + item.promoY);
-        const paidQty = groups * item.promoX + Math.min(remainder, item.promoX);
-        itemTotal = paidQty * item.price;
-      } else {
-        itemTotal = item.quantity * item.price;
-      }
-      totalPrice += itemTotal;
-
       const div = document.createElement('div');
       div.className = 'cart-item';
       div.innerHTML = `
-        <div>${item.name} x ${item.quantity}</div>
-        <div>
-          ${itemTotal.toLocaleString()} บาท
+        <div>${item.name}</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button onclick="changeCartQuantity('${item.id}', -1)" style="
+            background-color: transparent;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            color: #333;
+            cursor: pointer;
+          ">−</button>
+
+          <div style="
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            padding: 5px 0;
+          ">
+            ${item.quantity}
+          </div>
+
+          <button onclick="changeCartQuantity('${item.id}', 1)" style="
+            background-color: transparent;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            color: #333;
+            cursor: pointer;
+          ">+</button>
+
+          <span style="margin-left: auto; font-weight: bold;">฿${(item.price * item.quantity).toLocaleString()}</span>
+
           <button onclick="removeFromCart('${item.id}')">ลบ</button>
         </div>
       `;
       cartItemsEl.appendChild(div);
     });
 
-    cartTotalEl.innerHTML = `<strong>รวมทั้งหมด: ${totalPrice.toLocaleString()} บาท</strong>`;
-  }
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let total = subtotal;
+    let shippingFee = 0;
 
-  // เปิด-ปิด popup ตะกร้า (toggle)
-  function toggleCartPopup() {
-    if (cartPopup.style.display === 'block') {
-      closeCartPopup();
+    if (subtotal < 200) {
+      shippingFee = 20;
+      total += shippingFee;
+      cartTotalEl.innerHTML = `
+        <div>ยอดสินค้า: ฿${subtotal.toLocaleString()}</div>
+        <div>ค่าจัดส่ง: ฿${shippingFee.toLocaleString()}</div>
+        <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
+      `;
     } else {
-      if (cart.length === 0) {
-        alert('ตะกร้าว่างเปล่า');
-        return;
-      }
-      cartPopup.style.display = 'block';
+      cartTotalEl.innerHTML = `
+        <div>ค่าจัดส่ง: ฟรี</div>
+        <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
+      `;
     }
   }
-  function closeCartPopup() {
-    cartPopup.style.display = 'none';
-  }
-  function showCartBar() {
-    cartBarEl.style.display = 'flex';
-  }
-  function hideCartBar() {
-    cartBarEl.style.display = 'none';
-  }
 
-  btnViewCart.addEventListener('click', () => {
-    toggleCartPopup();
-  });
-
-  btnSendAdmin.addEventListener('click', async () => {
+  function updateCartUI() {
     if (cart.length === 0) {
-      alert('ตะกร้าว่างเปล่า');
+      cartBarEl.style.display = 'none';
+      cartPopup.style.display = 'none';
+    } else {
+      cartBarEl.style.display = 'flex';
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    if (cartPopup.style.display === 'block') {
+      renderCartItems();
+    }
+  }
+
+  function changeCartQuantity(id, delta) {
+    const cartItem = cart.find(item => item.id === id);
+    if (!cartItem) return;
+    cartItem.quantity += delta;
+    if (cartItem.quantity <= 0) {
+      removeFromCart(id);
+    } else {
+      updateCartUI();
+    }
+  }
+
+  btnSendAdmin.onclick = async () => {
+    if (cart.length === 0) {
+      alert('กรุณาเพิ่มสินค้าก่อนส่ง');
       return;
     }
-    // เตรียมข้อความที่จะแชร์ไปหาแอดมิน
-    let msg = 'รายการสินค้า:\n';
+
+    let message = 'รายการสั่งซื้อ:\n';
     cart.forEach(item => {
-      msg += `- ${item.name} x ${item.quantity}\n`;
+      message += `- ${item.name} x${item.quantity} = ฿${(item.price * item.quantity).toLocaleString()}\n`;
     });
-    // รวมราคาทั้งหมด
-    let totalPrice = 0;
-    cart.forEach(item => {
-      if (item.promoType === 'buyXgetYfree') {
-        const groups = Math.floor(item.quantity / (item.promoX + item.promoY));
-        const remainder = item.quantity % (item.promoX + item.promoY);
-        const paidQty = groups * item.promoX + Math.min(remainder, item.promoX);
-        totalPrice += paidQty * item.price;
-      } else {
-        totalPrice += item.quantity * item.price;
-      }
-    });
-    msg += `รวมทั้งหมด: ${totalPrice.toLocaleString()} บาท`;
+
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let total = subtotal;
+    if (subtotal < 200) total += 20;
+
+    message += `ยอดรวม: ฿${total.toLocaleString()}\n`;
+    if (subtotal < 200) message += `ค่าจัดส่ง: ฿20\n`;
+    else message += `ค่าจัดส่ง: ฟรี\n`;
 
     try {
       await liff.init({ liffId });
@@ -389,24 +362,38 @@
         liff.login();
         return;
       }
-      await liff.sendMessages([{ type: 'text', text: msg }]);
-      alert('ส่งข้อมูลสำเร็จ');
+      await liff.sendMessages([
+        {
+          type: 'text',
+          text: message,
+        }
+      ]);
+      alert('ส่งข้อความเรียบร้อย');
+      // เคลียร์ตะกร้า
       cart = [];
-      saveCart();
       updateCartUI();
-      closeCartPopup();
+      cartPopup.style.display = 'none';
     } catch (error) {
-      alert('ส่งข้อมูลไม่สำเร็จ โปรดลองอีกครั้ง');
+      alert('ส่งข้อความล้มเหลว โปรดลองอีกครั้ง');
       console.error(error);
     }
-  });
+  };
 
   // โหลดตะกร้าจาก localStorage
+  function loadCart() {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        cart = JSON.parse(savedCart);
+      } catch {}
+    }
+  }
+
+  // เริ่มต้น
   loadCart();
   renderProducts();
   updateCartUI();
-
 </script>
-
 </body>
 </html>
+
