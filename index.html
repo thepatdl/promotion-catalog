@@ -191,122 +191,121 @@
   const btnSendAdmin = document.getElementById('btnSendAdmin');
 
   function renderProducts() {
-    productListEl.innerHTML = '';
-    products.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'product-item';
-      div.innerHTML = `
-        <img src="${p.image}" alt="${p.name}" />
-        <div class="product-info">
-          <div>${p.name}</div>
-          <div class="product-price">฿${p.price.toLocaleString()}</div>
+  productListEl.innerHTML = '';
+  products.forEach(p => {
+    const hasPromoPrice = p.promoPrice && p.promoPrice < p.price;
+    const buy1Get1Text = p.isBuy1Get1 ? '<div style="color:#e91e63; font-weight:bold;">ซื้อ 1 แถม 1</div>' : '';
+
+    const priceHTML = hasPromoPrice
+      ? `<div>
+           <span style="text-decoration: line-through; color: #999;">฿${p.price.toLocaleString()}</span>
+           <span class="product-price"> ฿${p.promoPrice.toLocaleString()}</span>
+         </div>`
+      : `<div class="product-price">฿${p.price.toLocaleString()}</div>`;
+
+    const div = document.createElement('div');
+    div.className = 'product-item';
+    div.innerHTML = `
+      <img src="${p.image}" alt="${p.name}" />
+      <div class="product-info">
+        <div>${p.name}</div>
+        ${priceHTML}
+        ${buy1Get1Text}
+      </div>
+      <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
+    `;
+    productListEl.appendChild(div);
+  });
+}
+
+function calculateItemPrice(item) {
+  if (item.isBuy1Get1) {
+    // สำหรับ 1 แถม 1: จ่ายครึ่งจำนวน (ปัดขึ้นถ้าจำนวนคี่)
+    const paidQty = Math.ceil(item.quantity / 2);
+    return paidQty * item.price;
+  } else if (item.promoPrice && item.promoPrice < item.price) {
+    return item.quantity * item.promoPrice;
+  } else {
+    return item.quantity * item.price;
+  }
+}
+
+function renderCartItems() {
+  cartItemsEl.innerHTML = '';
+  if (cart.length === 0) {
+    cartItemsEl.innerHTML = '<p>ตะกร้าว่างเปล่า</p>';
+    cartTotalEl.textContent = '';
+    return;
+  }
+
+  cart.forEach(item => {
+    const itemTotalPrice = calculateItemPrice(item);
+    const promoText = item.isBuy1Get1 ? ' (1 แถม 1)' :
+                      (item.promoPrice && item.promoPrice < item.price) ? ` (ราคาพิเศษ ฿${item.promoPrice.toLocaleString()})` : '';
+
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <div>${item.name}${promoText}</div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button onclick="changeCartQuantity('${item.id}', -1)" style="
+          background-color: transparent;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          width: 30px;
+          height: 30px;
+          color: #333;
+          cursor: pointer;
+        ">−</button>
+
+        <div style="
+          width: 40px;
+          text-align: center;
+          font-weight: bold;
+          background-color: #f5f5f5;
+          border-radius: 4px;
+          padding: 5px 0;
+        ">
+          ${item.quantity}
         </div>
-        <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
-      `;
-      productListEl.appendChild(div);
-    });
+
+        <button onclick="changeCartQuantity('${item.id}', 1)" style="
+          background-color: transparent;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          width: 30px;
+          height: 30px;
+          color: #333;
+          cursor: pointer;
+        ">+</button>
+
+        <span style="margin-left: auto; font-weight: bold;">฿${itemTotalPrice.toLocaleString()}</span>
+
+        <button onclick="removeFromCart('${item.id}')">ลบ</button>
+      </div>
+    `;
+    cartItemsEl.appendChild(div);
+  });
+
+  const subtotal = cart.reduce((sum, item) => sum + calculateItemPrice(item), 0);
+  let total = subtotal;
+  let shippingFee = 0;
+
+  if (subtotal < 200) {
+    shippingFee = 20;
+    total += shippingFee;
+    cartTotalEl.innerHTML = `
+      <div>ยอดสินค้า: ฿${subtotal.toLocaleString()}</div>
+      <div>ค่าจัดส่ง: ฿${shippingFee.toLocaleString()}</div>
+      <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
+    `;
+  } else {
+    cartTotalEl.innerHTML = `
+      <div>ค่าจัดส่ง: ฟรี</div>
+      <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
+    `;
   }
-
-  function addToCart(id) {
-    const prod = products.find(p => p.id === id);
-    if (!prod) return;
-    const cartItem = cart.find(item => item.id === id);
-    if (cartItem) {
-      cartItem.quantity++;
-    } else {
-      cart.push({ ...prod, quantity: 1 });
-    }
-    updateCartUI();
-  }
-
-  function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    updateCartUI();
-  }
-
-    btnViewCart.onclick = () => {
-    if (cartPopup.style.display === 'block') {
-    cartPopup.style.display = 'none';
-    btnViewCart.textContent = 'ดูตะกร้า';
-    } else {
-    cartPopup.style.display = 'block';
-    btnViewCart.textContent = 'ซ่อนตะกร้า';
-    renderCartItems();
-    }
-  };
-
-  function renderCartItems() {
-    cartItemsEl.innerHTML = '';
-    if (cart.length === 0) {
-      cartItemsEl.innerHTML = '<p>ตะกร้าว่างเปล่า</p>';
-      cartTotalEl.textContent = '';
-      return;
-    }
-
-    cart.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'cart-item';
-      div.innerHTML = `
-        <div>${item.name}</div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <button onclick="changeCartQuantity('${item.id}', -1)" style="
-            background-color: transparent;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            color: #333;
-            cursor: pointer;
-          ">−</button>
-
-          <div style="
-            width: 40px;
-            text-align: center;
-            font-weight: bold;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            padding: 5px 0;
-          ">
-            ${item.quantity}
-          </div>
-
-          <button onclick="changeCartQuantity('${item.id}', 1)" style="
-            background-color: transparent;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            color: #333;
-            cursor: pointer;
-          ">+</button>
-
-          <span style="margin-left: auto; font-weight: bold;">฿${(item.price * item.quantity).toLocaleString()}</span>
-
-          <button onclick="removeFromCart('${item.id}')">ลบ</button>
-        </div>
-      `;
-      cartItemsEl.appendChild(div);
-    });
-
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    let total = subtotal;
-    let shippingFee = 0;
-
-    if (subtotal < 200) {
-      shippingFee = 20;
-      total += shippingFee;
-      cartTotalEl.innerHTML = `
-        <div>ยอดสินค้า: ฿${subtotal.toLocaleString()}</div>
-        <div>ค่าจัดส่ง: ฿${shippingFee.toLocaleString()}</div>
-        <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
-      `;
-    } else {
-      cartTotalEl.innerHTML = `
-        <div>ค่าจัดส่ง: ฟรี</div>
-        <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
-      `;
-    }
-  }
+}
 
   function updateCartUI() {
     if (cart.length === 0) {
