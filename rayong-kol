@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ค้นหา TikToker ที่ทำคอนเทนต์ในจังหวัดระยอง">
+    <title>ค้นหา TikToker ระยอง</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #ff4500;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+        }
+        input[type="search"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #ff4500;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #e03e00;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ค้นหา TikToker ในจังหวัดระยอง</h1>
+</header>
+
+<main>
+    <h2>ค้นหาผู้สร้างคอนเทนต์ TikTok</h2>
+    <form action="https://www.tiktok.com/search" method="get" target="_blank">
+        <input type="search" name="q" placeholder="พิมพ์คำค้นหา เช่น 'ระยอง'" required>
+        <button type="submit">ค้นหา</button>
+    </form>
+</main>
+
+<footer>
+    <p>&copy; 2025 ค้นหา TikToker ระยอง</p>
+</footer>
+
+</body>
+</html>
