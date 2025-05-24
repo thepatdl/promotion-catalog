@@ -248,7 +248,7 @@
 
     cart.forEach(item => {
       const div = document.createElement('div');
-      div.className = 'cart-item';
+    div.className = 'cart-item';
       div.innerHTML = `
         <div>${item.name}</div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -289,7 +289,7 @@
         </div>
       `;
       cartItemsEl.appendChild(div);
-    });
+  });
 
    const subtotal = cart.reduce((sum, item) => {
   let qtyToCharge = item.quantity;
@@ -351,22 +351,25 @@
   }
 
   let message = '📦 รายการสั่งซื้อ:\n';
-  const subtotal = cart.reduce((sum, item) => {
-  let qtyToCharge = item.quantity;
-  if (item.buyOneGetOne) {
-    qtyToCharge = Math.ceil(item.quantity / 2);
-  }
-  return sum + item.price * qtyToCharge;
-}, 0);
+  let subtotal = 0;
 
-let shippingFee = subtotal < 200 ? 20 : 0;
-let total = subtotal + shippingFee;
+  cart.forEach(item => {
+    let qtyToCharge = item.quantity;
+    if (item.buyOneGetOne) {
+      qtyToCharge = Math.ceil(item.quantity / 2);
+    }
+    const totalItemPrice = item.price * qtyToCharge;
+    subtotal += totalItemPrice;
 
-cartTotalEl.innerHTML = `
-  <div>ยอดสินค้า: ฿${subtotal.toLocaleString()}</div>
-  <div>ค่าจัดส่ง: ${shippingFee === 0 ? 'ฟรี' : `฿${shippingFee.toLocaleString()}`}</div>
-  <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
-`;
+    message += `• ${item.name} × ${item.quantity} = ฿${totalItemPrice.toLocaleString()}\n`;
+  });
+
+  const shippingFee = subtotal < 200 ? 20 : 0;
+  const total = subtotal + shippingFee;
+
+  message += `\n🧾 ยอดสินค้า: ฿${subtotal.toLocaleString()}`;
+  message += `\n🚚 ค่าจัดส่ง: ${shippingFee === 0 ? 'ฟรี' : `฿${shippingFee.toLocaleString()}`}`;
+  message += `\n💰 รวมทั้งหมด: ฿${total.toLocaleString()}`;
 
   try {
     await liff.init({ liffId });
