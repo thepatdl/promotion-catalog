@@ -4,128 +4,78 @@
   <meta charset="UTF-8">
   <title>แคตตาล็อกสินค้า</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f4f4;
-    }
-
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
     header {
-      background: #007bff;
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #007bff; color: white; padding: 15px 20px;
+      display: flex; justify-content: space-between; align-items: center;
     }
-
     .cart-btn {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      font-size: 18px;
-      position: relative;
+      background: none; border: none; color: white; cursor: pointer;
+      font-size: 18px; position: relative;
+    }
+    .cart-btn::after {
+      content: attr(data-count); position: absolute;
+      top: -8px; right: -10px; background: red;
+      color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;
+    }
+    h1 { margin: 0; font-size: 22px; }
+
+    .catalog {
+      display: flex; flex-wrap: wrap; gap: 20px;
+      padding: 20px; justify-content: center;
+    }
+    .product-card {
+      background: white; padding: 15px; border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 240px;
+    }
+    .product-name { font-size: 16px; font-weight: bold; }
+    .product-code { font-size: 13px; color: gray; margin: 5px 0; }
+    .product-price { color: green; font-weight: bold; }
+    .add-button {
+      margin-top: 10px; background: #28a745; color: white;
+      padding: 8px; border: none; border-radius: 6px; cursor: pointer;
     }
 
-    .cart-btn::after {
-      content: attr(data-count);
-      position: absolute;
-      top: -8px;
-      right: -10px;
-      background: red;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
+    .modal {
+      display: none; position: fixed; z-index: 99; left: 0; top: 0;
+      width: 100%; height: 100%; overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: white; margin: 10% auto; padding: 20px;
+      border-radius: 10px; width: 80%; max-width: 500px;
+    }
+    .close { color: red; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+
+    ul.cart-list { list-style: none; padding-left: 0; }
+    ul.cart-list li {
+      border-bottom: 1px solid #ddd; padding: 10px 0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .remove-btn {
+      background: red; color: white; border: none;
+      padding: 4px 8px; border-radius: 5px; cursor: pointer;
       font-size: 12px;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .catalog {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      padding: 20px;
-      justify-content: center;
-    }
-
-    .product-card {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 240px;
-    }
-
-    .product-name {
+    .total-section {
+      margin-top: 15px;
+      font-weight: bold;
       font-size: 16px;
-      font-weight: bold;
+      text-align: right;
     }
 
-    .product-code {
-      font-size: 13px;
-      color: gray;
-      margin: 5px 0;
-    }
-
-    .product-price {
-      color: green;
-      font-weight: bold;
-    }
-
-    .add-button {
+    .send-btn {
       margin-top: 10px;
-      background: #28a745;
-      color: white;
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    /* Cart Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 99;
-      left: 0;
-      top: 0;
       width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-    }
-
-    .modal-content {
-      background-color: white;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
-      max-width: 500px;
-    }
-
-    .close {
-      color: red;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
       cursor: pointer;
-    }
-
-    ul.cart-list {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    ul.cart-list li {
-      border-bottom: 1px solid #ddd;
-      padding: 10px 0;
     }
   </style>
 </head>
@@ -144,6 +94,8 @@
     <span class="close" id="closeCart">&times;</span>
     <h2>สินค้าที่อยู่ในตะกร้า</h2>
     <ul class="cart-list" id="cartList"></ul>
+    <div class="total-section" id="totalPrice">รวม: ฿0</div>
+    <button class="send-btn" onclick="sendToAdmin()">📤 ส่งข้อมูลหาแอดมิน</button>
   </div>
 </div>
 
@@ -169,23 +121,34 @@
   const cartList = document.getElementById("cartList");
   const cartModal = document.getElementById("cartModal");
   const closeCart = document.getElementById("closeCart");
+  const totalPriceElem = document.getElementById("totalPrice");
 
   function updateCartIcon() {
     const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartBtn.setAttribute("data-count", totalQty);
   }
 
+  function updateTotalPrice() {
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    totalPriceElem.textContent = `รวม: ฿${total}`;
+  }
+
   function renderCart() {
     cartList.innerHTML = "";
     if (cart.length === 0) {
       cartList.innerHTML = "<li>ยังไม่มีสินค้าในตะกร้า</li>";
+      totalPriceElem.textContent = "รวม: ฿0";
       return;
     }
-    cart.forEach(item => {
+    cart.forEach((item, index) => {
       const li = document.createElement("li");
-      li.textContent = `${item.name} - ฿${item.price} × ${item.quantity} ชิ้น`;
+      li.innerHTML = `
+        <span>${item.name} - ฿${item.price} × ${item.quantity}</span>
+        <button class="remove-btn" onclick="removeFromCart(${index})">ลบ</button>
+      `;
       cartList.appendChild(li);
     });
+    updateTotalPrice();
   }
 
   function addToCart(product) {
@@ -199,33 +162,41 @@
     renderCart();
   }
 
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartIcon();
+    renderCart();
+  }
+
+  function sendToAdmin() {
+    const payload = cart.map(item => ({
+      code: item.code,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity
+    }));
+    const jsonData = JSON.stringify(payload, null, 2);
+    alert("📤 ข้อมูลที่จะส่งหาแอดมิน:\n\n" + jsonData);
+    // 🟦 TODO: ส่งผ่าน LINE OA / API ได้ที่นี่
+  }
+
   productData.forEach(product => {
     const card = document.createElement("div");
     card.className = "product-card";
-
     card.innerHTML = `
       <div class="product-name">${product.name}</div>
       <div class="product-code">รหัส: ${product.code}</div>
       <div class="product-price">ราคา: ฿${product.price}</div>
       <button class="add-button">หยิบใส่ตะกร้า</button>
     `;
-
     card.querySelector(".add-button").addEventListener("click", () => addToCart(product));
     catalog.appendChild(card);
   });
 
-  cartBtn.addEventListener("click", () => {
-    cartModal.style.display = "block";
-  });
-
-  closeCart.addEventListener("click", () => {
-    cartModal.style.display = "none";
-  });
-
+  cartBtn.addEventListener("click", () => cartModal.style.display = "block");
+  closeCart.addEventListener("click", () => cartModal.style.display = "none");
   window.addEventListener("click", (e) => {
-    if (e.target === cartModal) {
-      cartModal.style.display = "none";
-    }
+    if (e.target === cartModal) cartModal.style.display = "none";
   });
 </script>
 
