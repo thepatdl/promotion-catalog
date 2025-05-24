@@ -1,118 +1,297 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>แคตตาล็อกสินค้า CJ</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Catalog (Mobile)</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .product { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
-    #cartCount { font-weight: bold; color: green; }
-    .cart-view { margin-top: 20px; }
-    button { margin: 4px; padding: 6px 10px; }
+    body {
+      font-family: "Sarabun", sans-serif;
+      margin: 0;
+      padding: 0 10px 60px 10px; /* เพิ่ม padding ล่างให้พื้นที่แถบตะกร้า */
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      margin: 16px 0;
+      color: #004aad;
+    }
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-item {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product-info {
+      flex: 1;
+      padding-right: 10px;
+      font-size: 16px;
+      line-height: 1.3;
+      color: #333;
+    }
+    .product-price {
+      font-weight: 700;
+      color: #004aad;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+    button.add-btn {
+      background: #004aad;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.3s ease;
+    }
+    button.add-btn:hover {
+      background: #00337a;
+    }
+
+    /* แถบตะกร้าสินค้าล่างสุด */
+    .cart-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #004aad;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -3px 10px rgba(0,0,0,0.15);
+      font-size: 16px;
+      z-index: 100;
+    }
+    .cart-bar .cart-info {
+      font-weight: 600;
+    }
+    .cart-bar button {
+      background: white;
+      color: #004aad;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .cart-bar button:hover {
+      background: #cce0ff;
+    }
+
+    /* รายการสินค้าในตะกร้า (popup) */
+    .cart-popup {
+      position: fixed;
+      bottom: 60px;
+      left: 10px;
+      right: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: none;
+      z-index: 101;
+    }
+    .cart-popup h3 {
+      margin: 0 0 8px 0;
+      color: #004aad;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item button {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.3s ease;
+    }
+    .cart-item button:hover {
+      background: #cc0000;
+    }
+    .cart-total {
+      text-align: right;
+      font-weight: 700;
+      margin-top: 8px;
+      font-size: 16px;
+    }
   </style>
 </head>
-<body onload="initLiff()">
+<body>
 
-  <h2>📦 สินค้าทั้งหมด <span id="cartCount">0</span> รายการในตะกร้า</h2>
+<h1>สินค้าในร้าน CJ Express</h1>
 
-  <div id="productList"></div>
+<div class="product-list" id="productList"></div>
 
-  <div class="cart-view">
-    <h3>🧺 ตะกร้าสินค้า</h3>
-    <ul id="cartItems"></ul>
-    <p>💰 รวมทั้งหมด: <span id="totalPrice">0</span> บาท</p>
-    <button onclick="sendToAdmin()">📤 ส่งข้อมูลหาแอดมิน</button>
-  </div>
+<!-- แถบตะกร้า -->
+<div class="cart-bar" id="cartBar" style="display:none;">
+  <div class="cart-info" id="cartSummary"></div>
+  <button id="btnViewCart">ดูตะกร้า</button>
+</div>
+
+<!-- popup แสดงตะกร้า -->
+<div class="cart-popup" id="cartPopup">
+  <h3>รายการสินค้าในตะกร้า</h3>
+  <div id="cartItems"></div>
+  <div class="cart-total" id="cartTotal"></div>
+  <button id="btnSendAdmin" style="margin-top: 10px; width: 100%; background: #004aad;">ส่งข้อมูลหาแอดมิน</button>
+</div>
 
 <script>
-  const liffId = '2007471898-ElJVq449';
-  let cart = [];
-
+  // ข้อมูลสินค้า (ตัวอย่าง)
   const products = [
-    { code: '8851123794589', name: '12PLUS แป้งเย็นสีชมพู 140g', price: 32 },
-    { code: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง 140g', price: 32 },
-    { code: '8851123782029', name: '12plus โคโลญม่วง 20ml', price: 35 },
-    { code: '8851123389112', name: '12plus โคโลญชมพู 45ml', price: 50 },
-    { code: '8851123383110', name: '12plus โรลออนคอลลาเจน 32.5ml', price: 49 },
-    // เพิ่มสินค้าอื่น ๆ ได้ที่นี่
+    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99 },
+    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835 },
+    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคลู สีชมพู 140g', price: 32 },
+    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง สีชมพู 140g', price: 32 },
+    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู 20ml', price: 35 },
+    { id: '8851123803533', name: '12PLUS โคโลญพ็อคเก็ตพาวเดอร์รี่ 20ml', price: 39 },
+    { id: '8851123782029', name: '12PLUS โคโลญพ็อคเก็ตม่วง 20ml', price: 35 },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู 45ml', price: 50 },
+    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกวล์ 32.5ml', price: 49 },
+    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู 25ml', price: 49 },
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท 32.5ml', price: 49 }
   ];
 
-  function initLiff() {
-    liff.init({ liffId }).then(() => {
-      if (!liff.isLoggedIn()) liff.login();
-      renderProducts();
-    });
-  }
+  let cart = [];
 
+  const productListEl = document.getElementById('productList');
+  const cartBarEl = document.getElementById('cartBar');
+  const cartSummaryEl = document.getElementById('cartSummary');
+  const btnViewCart = document.getElementById('btnViewCart');
+  const cartPopup = document.getElementById('cartPopup');
+  const cartItemsEl = document.getElementById('cartItems');
+  const cartTotalEl = document.getElementById('cartTotal');
+  const btnSendAdmin = document.getElementById('btnSendAdmin');
+
+  // แสดงสินค้าในหน้ารายการ
   function renderProducts() {
-    const list = document.getElementById('productList');
-    list.innerHTML = '';
-    products.forEach((p, i) => {
-      const el = document.createElement('div');
-      el.className = 'product';
-      el.innerHTML = `
-        <p><strong>${p.name}</strong></p>
-        <p>ราคา: ฿${p.price}</p>
-        <button onclick="addToCart(${i})">➕ เพิ่มเข้าตะกร้า</button>
+    productListEl.innerHTML = '';
+    products.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'product-item';
+
+      div.innerHTML = `
+        <div class="product-info">
+          <div>${p.name}</div>
+          <div class="product-price">฿${p.price.toLocaleString()}</div>
+        </div>
+        <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
       `;
-      list.appendChild(el);
+      productListEl.appendChild(div);
     });
   }
 
-  function addToCart(index) {
-    const product = products[index];
-    const existing = cart.find(item => item.code === product.code);
-    if (existing) {
-      existing.quantity++;
+  // เพิ่มสินค้าลงตะกร้า
+  function addToCart(id) {
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+    const cartItem = cart.find(item => item.id === id);
+    if (cartItem) {
+      cartItem.quantity++;
     } else {
-      cart.push({ ...product, quantity: 1 });
+      cart.push({ ...prod, quantity: 1 });
     }
     updateCartUI();
   }
 
-  function removeFromCart(index) {
-    cart.splice(index, 1);
+  // ลบสินค้าออกจากตะกร้า
+  function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
     updateCartUI();
   }
 
-  function updateCartUI() {
-    const list = document.getElementById('cartItems');
-    list.innerHTML = '';
-    let total = 0;
+  // แสดงตะกร้า (popup)
+  btnViewCart.onclick = () => {
+    if (cartPopup.style.display === 'block') {
+      cartPopup.style.display = 'none';
+    } else {
+      renderCartItems();
+      cartPopup.style.display = 'block';
+    }
+  };
 
-    cart.forEach((item, i) => {
-      total += item.price * item.quantity;
-      const li = document.createElement('li');
-      li.innerHTML = `${item.name} (${item.quantity} ชิ้น) = ฿${item.price * item.quantity}
-        <button onclick="removeFromCart(${i})">❌</button>`;
-      list.appendChild(li);
-    });
-
-    document.getElementById('cartCount').innerText = cart.length;
-    document.getElementById('totalPrice').innerText = total;
-  }
-
-  async function sendToAdmin() {
+  // แสดงรายการสินค้าในตะกร้า
+  function renderCartItems() {
+    cartItemsEl.innerHTML = '';
     if (cart.length === 0) {
-      alert("ยังไม่มีสินค้าในตะกร้า");
+      cartItemsEl.innerHTML = '<p>ตะกร้าว่างเปล่า</p>';
+      cartTotalEl.textContent = '';
       return;
     }
 
-    const payload = cart.map(item =>
-      `${item.name} (${item.quantity} ชิ้น) = ฿${item.price * item.quantity}`
-    ).join('\n');
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const message = `🛒 รายการในตะกร้า:\n${payload}\n\n💰 รวม: ฿${total}`;
+    cart.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <div>${item.name} x ${item.quantity}</div>
+        <div>
+          <span>฿${(item.price * item.quantity).toLocaleString()}</span>
+          <button onclick="removeFromCart('${item.id}')">ลบ</button>
+        </div>
+      `;
+      cartItemsEl.appendChild(div);
+    });
 
-    try {
-      await liff.sendMessages([{ type: 'text', text: message }]);
-      alert("📤 ส่งข้อมูลหาแอดมินเรียบร้อยแล้ว!");
-    } catch (err) {
-      console.error(err);
-      alert("❌ ไม่สามารถส่งข้อความได้ กรุณาตรวจสอบการเชื่อมต่อ");
-    }
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    cartTotalEl.textContent = `รวมทั้งหมด: ฿${total.toLocaleString()}`;
   }
+
+  // อัพเดต UI ตะกร้าสินค้า
+  function updateCartUI() {
+    if (cart.length === 0) {
+      cartBarEl.style.display = 'none';
+    } else {
+      cartBarEl.style.display = 'flex';
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
+    }
+    renderCartItems();
+  }
+
+  // ส่งข้อมูลหาแอดมิน (แค่ alert ตัวอย่าง)
+  btnSendAdmin.onclick = () => {
+    if (cart.length === 0) {
+      alert('ตะกร้าว่าง ไม่มีสินค้าส่งให้แอดมิน');
+      return;
+    }
+    let message = '🛒 รายการสินค้า:\n';
+    cart.forEach(item => {
+      message += `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}\n`;
+    });
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    message += `รวมทั้งหมด: ฿${total}`;
+
+    alert('ส่งข้อความหาแอดมิน:\n\n' + message);
+    // ที่นี่สามารถต่อยอดส่งข้อความผ่าน LIFF หรือ LINE Notify API ได้
+  };
+
+  renderProducts();
 </script>
+
 </body>
 </html>
