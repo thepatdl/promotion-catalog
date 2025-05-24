@@ -249,7 +249,10 @@
       <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
     `;
   } else {
-    cartTotalEl.innerHTML = `<div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>`;
+    cartTotalEl.innerHTML = `
+      <div>ค่าจัดส่ง: ฟรี</div>
+      <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
+    `;
   }
 }
 
