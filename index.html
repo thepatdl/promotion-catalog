@@ -131,17 +131,17 @@
   const liffId = "2007471898-ElJVq449";
 
   const products = [
-    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
+    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8854795000057_1.jpg' },
+    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851111419425.jpg' },
+    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123794589.jpg' },
+    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123805414.jpg' },
+    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123782005.jpg' },
+    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123803533.jpg' },
+    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123782029.jpg' },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123389112.jpg' },
+    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123383110.jpg' },
+    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123809009.jpg' },
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123789028.jpg' }
   ];
 
   let cart = [];
@@ -160,14 +160,14 @@
     products.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product-item';
-      div.innerHTML = 
+      div.innerHTML = `
         <img src="${p.image}" alt="${p.name}" />
         <div class="product-info">
           <div>${p.name}</div>
           <div class="product-price">฿${p.price.toLocaleString()}</div>
         </div>
         <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
-      ;
+      `;
       productListEl.appendChild(div);
     });
   }
@@ -204,17 +204,17 @@
     cart.forEach(item => {
       const div = document.createElement('div');
       div.className = 'cart-item';
-      div.innerHTML = 
+      div.innerHTML = `
         <div>${item.name} x ${item.quantity}</div>
         <div>
           <span>฿${(item.price * item.quantity).toLocaleString()}</span>
           <button onclick="removeFromCart('${item.id}')">ลบ</button>
         </div>
-      ;
+      `;
       cartItemsEl.appendChild(div);
     });
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    cartTotalEl.textContent = รวมทั้งหมด: ฿${total.toLocaleString()};
+    cartTotalEl.textContent = `รวมทั้งหมด: ฿${total.toLocaleString()}`;
   }
 
   function updateCartUI() {
@@ -225,7 +225,7 @@
       cartBarEl.style.display = 'flex';
       const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
       const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      cartSummaryEl.textContent = สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()};
+      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
     }
     renderCartItems();
   }
@@ -238,9 +238,9 @@
 
     const messages = [{
       type: 'text',
-      text: 🛒 รายการสินค้า:\n +
-            cart.map(item => - ${item.name} x${item.quantity} = ฿${item.price * item.quantity}).join('\n') +
-            \nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}
+      text: `🛒 รายการสินค้า:\n` +
+            cart.map(item => `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
+            `\nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}`
     }];
 
     try {
@@ -250,7 +250,7 @@
       }
 
       await liff.sendMessages(messages);
-      alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณค่ะ!');
+      alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณครับ!');
       liff.closeWindow();
     } catch (error) {
       alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + error);
