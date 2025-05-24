@@ -166,17 +166,17 @@
   const liffId = "2007471898-ElJVq449";
 
   const products = [
-    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
+    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, promoPrice: 90, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, promoPrice: 800, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, promoPrice: 20, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, promoPrice: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
   ];
 
   let cart = [];
@@ -197,10 +197,13 @@
       div.className = 'product-item';
       div.innerHTML = `
         <img src="${p.image}" alt="${p.name}" />
-        <div class="product-info">
-          <div>${p.name}</div>
-          <div class="product-price">฿${p.price.toLocaleString()}</div>
+     <div class="product-info">
+        <div>${p.name}</div>
+        <div class="product-price">
+          <span style="text-decoration: line-through; color: #999;">฿${p.price.toLocaleString()}</span>
+          <span style="color: #e91e63; font-weight: bold; margin-left: 5px;">฿${p.promoPrice.toLocaleString()}</span>
         </div>
+      </div>
         <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
       `;
       productListEl.appendChild(div);
@@ -214,7 +217,7 @@
     if (cartItem) {
       cartItem.quantity++;
     } else {
-      cart.push({ ...prod, quantity: 1 });
+      cart.push({ ...prod, price: prod.promoPrice, quantity: 1 });
     }
     updateCartUI();
   }
