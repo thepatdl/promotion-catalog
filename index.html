@@ -8,7 +8,7 @@
     body {
       font-family: "Sarabun", sans-serif;
       margin: 0;
-      padding-bottom: 60px; /* ลบ padding ซ้ายขวาออก */
+      padding-bottom: 60px;
       background: #f9f9f9;
     }
 
@@ -65,8 +65,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 10px; /* ซ้ายขวาเว้นพอดี */
-      box-sizing: border-box; /* สำคัญมาก! เพื่อให้ padding อยู่ภายในขนาด 100% */
+      padding: 10px 10px;
+      box-sizing: border-box;
       z-index: 100;
     }
 
@@ -109,9 +109,13 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .cart-total {
+    .cart-total > div {
+      margin-top: 4px;
+    }
+    .cart-total strong {
       font-weight: bold;
       margin-top: 10px;
+      display: block;
     }
     #btnSendAdmin {
       background: #00aa4f;
@@ -231,7 +235,14 @@
       cartItemsEl.appendChild(div);
     });
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    cartTotalEl.textContent = `รวมทั้งหมด: ฿${total.toLocaleString()}`;
+    const shippingFee = total < 200 ? 20 : 0;
+    const grandTotal = total + shippingFee;
+
+    cartTotalEl.innerHTML = `
+      <div>ยอดสินค้า: ฿${total.toLocaleString()}</div>
+      ${shippingFee > 0 ? `<div>ค่าจัดส่ง: ฿${shippingFee}</div>` : ''}
+      <div><strong>รวมทั้งหมด: ฿${grandTotal.toLocaleString()}</strong></div>
+    `;
   }
 
   function updateCartUI() {
@@ -242,7 +253,10 @@
       cartBarEl.style.display = 'flex';
       const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
       const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
+      const shippingFee = totalPrice < 200 ? 20 : 0;
+      const grandTotal = totalPrice + shippingFee;
+
+      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${grandTotal.toLocaleString()}`;
     }
     renderCartItems();
   }
@@ -253,12 +267,17 @@
       return;
     }
 
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shippingFee = total < 200 ? 20 : 0;
+    const grandTotal = total + shippingFee;
+
     const messages = [{
       type: 'text',
       text: `🛒 รายการสินค้า:\n` +
-      cart.map(item => `- ${item.name} (${item.id}) x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
-      `\nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}`
-
+        cart.map(item => `- ${item.name} (${item.id}) x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
+        `\nยอดสินค้า: ฿${total}` +
+        (shippingFee > 0 ? `\nค่าจัดส่ง: ฿${shippingFee}` : '') +
+        `\nรวมทั้งหมด: ฿${grandTotal}`
     }];
 
     try {
@@ -266,7 +285,6 @@
         alert('กรุณาเปิดผ่านแอป LINE เพื่อส่งข้อความ');
         return;
       }
-
       await liff.sendMessages(messages);
       alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณค่ะ!');
       liff.closeWindow();
@@ -275,22 +293,22 @@
     }
   }
 
-  btnSendAdmin.onclick = sendMessageToAdmin;
+  btnSendAdmin.addEventListener('click', sendMessageToAdmin);
 
   async function initializeLiff() {
-    try {
-      await liff.init({ liffId });
-    } catch (error) {
-      console.error('LIFF init failed', error);
+    await liff.init({ liffId });
+    if (!liff.isLoggedIn()) {
+      liff.login();
     }
   }
 
-  window.addToCart = addToCart;
-  window.removeFromCart = removeFromCart;
-
   renderProducts();
+  updateCartUI();
   initializeLiff();
-</script>
 
+  // ให้ฟังก์ชัน removeFromCart เป็น global เพื่อเรียกจาก onclick ใน HTML
+  window.removeFromCart = removeFromCart;
+  window.addToCart = addToCart;
+</script>
 </body>
 </html>
