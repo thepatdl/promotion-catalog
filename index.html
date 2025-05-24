@@ -2,203 +2,117 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>แคตตาล็อกสินค้า</title>
+  <title>แคตตาล็อกสินค้า CJ</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
-    header {
-      background: #007bff; color: white; padding: 15px 20px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .cart-btn {
-      background: none; border: none; color: white; cursor: pointer;
-      font-size: 18px; position: relative;
-    }
-    .cart-btn::after {
-      content: attr(data-count); position: absolute;
-      top: -8px; right: -10px; background: red;
-      color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;
-    }
-    h1 { margin: 0; font-size: 22px; }
-
-    .catalog {
-      display: flex; flex-wrap: wrap; gap: 20px;
-      padding: 20px; justify-content: center;
-    }
-    .product-card {
-      background: white; padding: 15px; border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 240px;
-    }
-    .product-name { font-size: 16px; font-weight: bold; }
-    .product-code { font-size: 13px; color: gray; margin: 5px 0; }
-    .product-price { color: green; font-weight: bold; }
-    .add-button {
-      margin-top: 10px; background: #28a745; color: white;
-      padding: 8px; border: none; border-radius: 6px; cursor: pointer;
-    }
-
-    .modal {
-      display: none; position: fixed; z-index: 99; left: 0; top: 0;
-      width: 100%; height: 100%; overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-    }
-    .modal-content {
-      background-color: white; margin: 10% auto; padding: 20px;
-      border-radius: 10px; width: 80%; max-width: 500px;
-    }
-    .close { color: red; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-
-    ul.cart-list { list-style: none; padding-left: 0; }
-    ul.cart-list li {
-      border-bottom: 1px solid #ddd; padding: 10px 0;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-
-    .remove-btn {
-      background: red; color: white; border: none;
-      padding: 4px 8px; border-radius: 5px; cursor: pointer;
-      font-size: 12px;
-    }
-
-    .total-section {
-      margin-top: 15px;
-      font-weight: bold;
-      font-size: 16px;
-      text-align: right;
-    }
-
-    .send-btn {
-      margin-top: 10px;
-      width: 100%;
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; padding: 20px; }
+    .product { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+    #cartCount { font-weight: bold; color: green; }
+    .cart-view { margin-top: 20px; }
+    button { margin: 4px; padding: 6px 10px; }
   </style>
 </head>
-<body>
+<body onload="initLiff()">
 
-<header>
-  <h1>แคตตาล็อกสินค้า</h1>
-  <button class="cart-btn" id="openCart" data-count="0">🛒</button>
-</header>
+  <h2>📦 สินค้าทั้งหมด <span id="cartCount">0</span> รายการในตะกร้า</h2>
 
-<div class="catalog" id="catalog"></div>
+  <div id="productList"></div>
 
-<!-- Modal Cart -->
-<div id="cartModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeCart">&times;</span>
-    <h2>สินค้าที่อยู่ในตะกร้า</h2>
-    <ul class="cart-list" id="cartList"></ul>
-    <div class="total-section" id="totalPrice">รวม: ฿0</div>
-    <button class="send-btn" onclick="sendToAdmin()">📤 ส่งข้อมูลหาแอดมิน</button>
+  <div class="cart-view">
+    <h3>🧺 ตะกร้าสินค้า</h3>
+    <ul id="cartItems"></ul>
+    <p>💰 รวมทั้งหมด: <span id="totalPrice">0</span> บาท</p>
+    <button onclick="sendToAdmin()">📤 ส่งข้อมูลหาแอดมิน</button>
   </div>
-</div>
 
 <script>
-  const productData = [
-    { code: "8854795000057", name: "(ยกเลิก)สุราเชี่ยงชุน625ml Piece", price: 99 },
-    { code: "8935040402854", name: "100Pipersวิสกี้1000ml Piece", price: 835 },
-    { code: "8851123794589", name: "12PLUSแป้งเย็นเอ็กซ์ตร้าคลูสีชมพู140g Piece", price: 32 },
-    { code: "8851123805414", name: "12PLUSแป้งเย็นไวท์เทนนิ่งสีชมพู140g Piece", price: 32 },
-    { code: "8851123782005", name: "12plusโคโลญพ็อคเก็ตชมพู20ml Piece", price: 35 },
-    { code: "8851123803533", name: "12plusโคโลญพ็อคเก็ตพาวเดอร์รี่20ml Piece", price: 39 },
-    { code: "8851123782029", name: "12plusโคโลญพ็อคเก็ตม่วง20ml Piece", price: 35 },
-    { code: "8851123389112", name: "12plusโคโลญมอยส์เจอร์ชมพู45ml Piece", price: 50 },
-    { code: "8851123383110", name: "12plusโรลออนคอลลาเจนโกวล์32.5ml Piece", price: 49 },
-    { code: "8851123809009", name: "12plusโรลออนดับเบิ้ลไวท์ชมพู25ml Piece", price: 49 },
-    { code: "8851123789028", name: "12plusโรลออนฟรุ้ตตี้ไบร์ท32.5ml Piece", price: 49 }
+  const liffId = '2007471898-ElJVq449';
+  let cart = [];
+
+  const products = [
+    { code: '8851123794589', name: '12PLUS แป้งเย็นสีชมพู 140g', price: 32 },
+    { code: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง 140g', price: 32 },
+    { code: '8851123782029', name: '12plus โคโลญม่วง 20ml', price: 35 },
+    { code: '8851123389112', name: '12plus โคโลญชมพู 45ml', price: 50 },
+    { code: '8851123383110', name: '12plus โรลออนคอลลาเจน 32.5ml', price: 49 },
+    // เพิ่มสินค้าอื่น ๆ ได้ที่นี่
   ];
 
-  const cart = [];
-
-  const catalog = document.getElementById("catalog");
-  const cartBtn = document.getElementById("openCart");
-  const cartList = document.getElementById("cartList");
-  const cartModal = document.getElementById("cartModal");
-  const closeCart = document.getElementById("closeCart");
-  const totalPriceElem = document.getElementById("totalPrice");
-
-  function updateCartIcon() {
-    const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartBtn.setAttribute("data-count", totalQty);
-  }
-
-  function updateTotalPrice() {
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    totalPriceElem.textContent = `รวม: ฿${total}`;
-  }
-
-  function renderCart() {
-    cartList.innerHTML = "";
-    if (cart.length === 0) {
-      cartList.innerHTML = "<li>ยังไม่มีสินค้าในตะกร้า</li>";
-      totalPriceElem.textContent = "รวม: ฿0";
-      return;
-    }
-    cart.forEach((item, index) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${item.name} - ฿${item.price} × ${item.quantity}</span>
-        <button class="remove-btn" onclick="removeFromCart(${index})">ลบ</button>
-      `;
-      cartList.appendChild(li);
+  function initLiff() {
+    liff.init({ liffId }).then(() => {
+      if (!liff.isLoggedIn()) liff.login();
+      renderProducts();
     });
-    updateTotalPrice();
   }
 
-  function addToCart(product) {
+  function renderProducts() {
+    const list = document.getElementById('productList');
+    list.innerHTML = '';
+    products.forEach((p, i) => {
+      const el = document.createElement('div');
+      el.className = 'product';
+      el.innerHTML = `
+        <p><strong>${p.name}</strong></p>
+        <p>ราคา: ฿${p.price}</p>
+        <button onclick="addToCart(${i})">➕ เพิ่มเข้าตะกร้า</button>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  function addToCart(index) {
+    const product = products[index];
     const existing = cart.find(item => item.code === product.code);
     if (existing) {
-      existing.quantity += 1;
+      existing.quantity++;
     } else {
       cart.push({ ...product, quantity: 1 });
     }
-    updateCartIcon();
-    renderCart();
+    updateCartUI();
   }
 
   function removeFromCart(index) {
     cart.splice(index, 1);
-    updateCartIcon();
-    renderCart();
+    updateCartUI();
   }
 
-  function sendToAdmin() {
-    const payload = cart.map(item => ({
-      code: item.code,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity
-    }));
-    const jsonData = JSON.stringify(payload, null, 2);
-    alert("📤 ข้อมูลที่จะส่งหาแอดมิน:\n\n" + jsonData);
-    // 🟦 TODO: ส่งผ่าน LINE OA / API ได้ที่นี่
+  function updateCartUI() {
+    const list = document.getElementById('cartItems');
+    list.innerHTML = '';
+    let total = 0;
+
+    cart.forEach((item, i) => {
+      total += item.price * item.quantity;
+      const li = document.createElement('li');
+      li.innerHTML = `${item.name} (${item.quantity} ชิ้น) = ฿${item.price * item.quantity}
+        <button onclick="removeFromCart(${i})">❌</button>`;
+      list.appendChild(li);
+    });
+
+    document.getElementById('cartCount').innerText = cart.length;
+    document.getElementById('totalPrice').innerText = total;
   }
 
-  productData.forEach(product => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-    card.innerHTML = `
-      <div class="product-name">${product.name}</div>
-      <div class="product-code">รหัส: ${product.code}</div>
-      <div class="product-price">ราคา: ฿${product.price}</div>
-      <button class="add-button">หยิบใส่ตะกร้า</button>
-    `;
-    card.querySelector(".add-button").addEventListener("click", () => addToCart(product));
-    catalog.appendChild(card);
-  });
+  async function sendToAdmin() {
+    if (cart.length === 0) {
+      alert("ยังไม่มีสินค้าในตะกร้า");
+      return;
+    }
 
-  cartBtn.addEventListener("click", () => cartModal.style.display = "block");
-  closeCart.addEventListener("click", () => cartModal.style.display = "none");
-  window.addEventListener("click", (e) => {
-    if (e.target === cartModal) cartModal.style.display = "none";
-  });
+    const payload = cart.map(item =>
+      `${item.name} (${item.quantity} ชิ้น) = ฿${item.price * item.quantity}`
+    ).join('\n');
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const message = `🛒 รายการในตะกร้า:\n${payload}\n\n💰 รวม: ฿${total}`;
+
+    try {
+      await liff.sendMessages([{ type: 'text', text: message }]);
+      alert("📤 ส่งข้อมูลหาแอดมินเรียบร้อยแล้ว!");
+    } catch (err) {
+      console.error(err);
+      alert("❌ ไม่สามารถส่งข้อความได้ กรุณาตรวจสอบการเชื่อมต่อ");
+    }
+  }
 </script>
-
 </body>
 </html>
