@@ -223,10 +223,16 @@
     cart = cart.filter(item => item.id !== id);
     updateCartUI();
   }
-
-  btnViewCart.onclick = () => {
-    cartPopup.style.display = cartPopup.style.display === 'block' ? 'none' : 'block';
-    renderCartItems();
+  
+   btnViewCart.onclick = () => {
+    if (cartPopup.style.display === 'block') {
+      cartPopup.style.display = 'none';
+      btnViewCart.textContent = 'ดูตะกร้า';
+    } else {
+      cartPopup.style.display = 'block';
+       btnViewCart.textContent = 'ซ่อนตะกร้า';
+      renderCartItems();
+    }
   };
 
   function renderCartItems() {
