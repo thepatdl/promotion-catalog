@@ -245,21 +245,19 @@
     `;
   }
 
-  function updateCartUI() {
-    if (cart.length === 0) {
-      cartBarEl.style.display = 'none';
-      cartPopup.style.display = 'none';
-    } else {
-      cartBarEl.style.display = 'flex';
-      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const shippingFee = totalPrice < 200 ? 20 : 0;
-      const grandTotal = totalPrice + shippingFee;
-
-      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${grandTotal.toLocaleString()}`;
-    }
-    renderCartItems();
+ function updateCartUI() {
+  if (cart.length === 0) {
+    cartBarEl.style.display = 'none';
+    cartPopup.style.display = 'none';
+  } else {
+    cartBarEl.style.display = 'flex';
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    // แสดงเฉพาะยอดราคาสินค้าในแถบด้านล่าง
+    cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
   }
+  renderCartItems();
+}
 
   async function sendMessageToAdmin() {
     if (cart.length === 0) {
