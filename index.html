@@ -261,9 +261,12 @@
     cartBarEl.style.display = 'flex';
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    // แสดงเฉพาะยอดราคาสินค้าในแถบด้านล่าง
     cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
   }
+
+  // ⬇️ Save cart to localStorage
+  localStorage.setItem('cart', JSON.stringify(cart));
+
   renderCartItems();
 }
 
@@ -292,8 +295,11 @@
         return;
       }
       await liff.sendMessages(messages);
-      alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณค่ะ!');
-      liff.closeWindow();
+alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณค่ะ!');
+cart = [];
+localStorage.removeItem('cart');
+liff.closeWindow();
+      
     } catch (error) {
       alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + error);
     }
@@ -305,6 +311,16 @@
     await liff.init({ liffId });
     if (!liff.isLoggedIn()) {
       liff.login();
+    }
+  }
+
+  // ⬇️ Load cart from localStorage (ถ้ามี)
+  const savedCart = localStorage.getItem('cart');
+  if (savedCart) {
+    try {
+      cart = JSON.parse(savedCart);
+    } catch (e) {
+      cart = [];
     }
   }
 
