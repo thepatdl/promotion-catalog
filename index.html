@@ -1,45 +1,30 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แคตตาล็อกสินค้า CJ Express</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <h1>แคตตาล็อกสินค้า CJ Express</h1>
-        <p>ค้นพบสินค้าคุณภาพในราคาพิเศษ</p>
-    </header>
+<div id="catalog"></div>
 
-    <section class="product-list">
-        <article class="product">
-            <img src="https://via.placeholder.com/200" alt="ชื่อสินค้า">
-            <h2>ชื่อสินค้า 1</h2>
-            <p>รายละเอียดสั้น ๆ ของสินค้า 1</p>
-            <span class="price">฿199</span>
-        </article>
+<script>
+const products = [
+  {
+    name: "สินค้า A",
+    image: "https://example.com/imageA.jpg",
+    price: 100,
+    description: "รายละเอียดสินค้า A"
+  },
+  {
+    name: "สินค้า B",
+    image: "https://example.com/imageB.jpg",
+    price: 200,
+    description: "รายละเอียดสินค้า B"
+  }
+];
 
-        <article class="product">
-            <img src="https://via.placeholder.com/200" alt="ชื่อสินค้า">
-            <h2>ชื่อสินค้า 2</h2>
-            <p>รายละเอียดสั้น ๆ ของสินค้า 2</p>
-            <span class="price">฿299</span>
-        </article>
-
-        <article class="product">
-            <img src="https://via.placeholder.com/200" alt="ชื่อสินค้า">
-            <h2>ชื่อสินค้า 3</h2>
-            <p>รายละเอียดสั้น ๆ ของสินค้า 3</p>
-            <span class="price">฿399</span>
-        </article>
-
-        <!-- เพิ่มสินค้าเพิ่มเติมได้ที่นี่ -->
-    </section>
-
-    <footer>
-        <p>&copy; 2025 CJ Express. สงวนลิขสิทธิ์.</p>
-    </footer>
-</body>
-</html>
-
+const container = document.getElementById('catalog');
+products.forEach(product => {
+  const card = document.createElement('div');
+  card.innerHTML = `
+    <img src="${product.image}" alt="${product.name}" width="200" />
+    <h3>${product.name}</h3>
+    <p>${product.description}</p>
+    <p>ราคา: ฿${product.price}</p>
+  `;
+  container.appendChild(card);
+});
+</script>
