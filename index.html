@@ -5,15 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Catalog with LIFF Send</title>
   <style>
-    /* ... ใช้ CSS จากตัวอย่างก่อนหน้า ... */
     body {
       font-family: "Sarabun", sans-serif;
       margin: 0;
       padding: 0 10px 60px 10px;
       background: #f9f9f9;
     }
-    /* ... (ย่อ CSS ไม่เปลี่ยน) ... */
-    /* ให้ใช้ CSS ตัวเดียวกับที่ส่งไปก่อนหน้านี้ */
+    h1 {
+      text-align: center;
+      padding: 20px 0;
+      color: #004aad;
+    }
+    .product-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .product-item {
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .product-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+    .product-info {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .product-price {
+      font-weight: bold;
+      color: #e91e63;
+      margin-top: 4px;
+    }
+    .add-btn {
+      background: #004aad;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .cart-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #004aad;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      z-index: 100;
+    }
+    .cart-popup {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      left: 10px;
+      right: 10px;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      z-index: 99;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .cart-item button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 2px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .cart-total {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    #btnSendAdmin {
+      background: #004aad;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -31,33 +121,31 @@
   <h3>รายการสินค้าในตะกร้า</h3>
   <div id="cartItems"></div>
   <div class="cart-total" id="cartTotal"></div>
-  <button id="btnSendAdmin" style="margin-top: 10px; width: 100%; background: #004aad;">ส่งข้อมูลหาแอดมิน</button>
+  <button id="btnSendAdmin" style="margin-top: 10px; width: 100%;">ส่งข้อมูลหาแอดมิน</button>
 </div>
 
-<!-- โหลด LIFF SDK -->
+<!-- LIFF SDK -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <script>
   const liffId = "2007471898-ElJVq449";
 
-  // ข้อมูลสินค้า (เหมือนเดิม)
   const products = [
-    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคลู สีชมพู 140g', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง สีชมพู 140g', price: 32, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู 20ml', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123803533', name: '12PLUS โคโลญพ็อคเก็ตพาวเดอร์รี่ 20ml', price: 39, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123782029', name: '12PLUS โคโลญพ็อคเก็ตม่วง 20ml', price: 35, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู 45ml', price: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกวล์ 32.5ml', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู 25ml', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท 32.5ml', price: 49, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
+    { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8854795000057_1.jpg' },
+    { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851111419425.jpg' },
+    { id: '8851123794589', name: '12PLUS แป้งเย็นเอ็กซ์ตร้าคูล', price: 32, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123794589.jpg' },
+    { id: '8851123805414', name: '12PLUS แป้งเย็นไวท์เทนนิ่ง', price: 32, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123805414.jpg' },
+    { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123782005.jpg' },
+    { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123803533.jpg' },
+    { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123782029.jpg' },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123389112.jpg' },
+    { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123383110.jpg' },
+    { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123809009.jpg' },
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, image: 'https://cdn.cjmore.co.th/media/catalog/product/8/8/8851123789028.jpg' }
   ];
 
   let cart = [];
 
-  // DOM
   const productListEl = document.getElementById('productList');
   const cartBarEl = document.getElementById('cartBar');
   const cartSummaryEl = document.getElementById('cartSummary');
@@ -67,13 +155,13 @@
   const cartTotalEl = document.getElementById('cartTotal');
   const btnSendAdmin = document.getElementById('btnSendAdmin');
 
-  // แสดงสินค้า
   function renderProducts() {
     productListEl.innerHTML = '';
     products.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product-item';
       div.innerHTML = `
+        <img src="${p.image}" alt="${p.name}" />
         <div class="product-info">
           <div>${p.name}</div>
           <div class="product-price">฿${p.price.toLocaleString()}</div>
@@ -84,7 +172,6 @@
     });
   }
 
-  // เพิ่มสินค้า
   function addToCart(id) {
     const prod = products.find(p => p.id === id);
     if (!prod) return;
@@ -97,23 +184,16 @@
     updateCartUI();
   }
 
-  // ลบสินค้า
   function removeFromCart(id) {
     cart = cart.filter(item => item.id !== id);
     updateCartUI();
   }
 
-  // แสดง popup ตะกร้า
   btnViewCart.onclick = () => {
-    if (cartPopup.style.display === 'block') {
-      cartPopup.style.display = 'none';
-    } else {
-      renderCartItems();
-      cartPopup.style.display = 'block';
-    }
+    cartPopup.style.display = cartPopup.style.display === 'block' ? 'none' : 'block';
+    renderCartItems();
   };
 
-  // แสดงรายการในตะกร้า
   function renderCartItems() {
     cartItemsEl.innerHTML = '';
     if (cart.length === 0) {
@@ -137,7 +217,6 @@
     cartTotalEl.textContent = `รวมทั้งหมด: ฿${total.toLocaleString()}`;
   }
 
-  // อัพเดต UI ตะกร้า
   function updateCartUI() {
     if (cart.length === 0) {
       cartBarEl.style.display = 'none';
@@ -151,17 +230,15 @@
     renderCartItems();
   }
 
-  // ส่งข้อมูลหาแอดมิน ผ่าน LIFF
   async function sendMessageToAdmin() {
     if (cart.length === 0) {
       alert('ตะกร้าว่าง ไม่มีสินค้าส่งให้แอดมิน');
       return;
     }
 
-    // สร้างข้อความแบบ LINE message format
     const messages = [{
       type: 'text',
-      text: `🛒 รายการสินค้า:\n` + 
+      text: `🛒 รายการสินค้า:\n` +
             cart.map(item => `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
             `\nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}`
     }];
@@ -174,7 +251,7 @@
 
       await liff.sendMessages(messages);
       alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณครับ!');
-      liff.closeWindow(); // ปิดหน้าต่าง LIFF
+      liff.closeWindow();
     } catch (error) {
       alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + error);
     }
@@ -182,7 +259,6 @@
 
   btnSendAdmin.onclick = sendMessageToAdmin;
 
-  // เริ่มต้น LIFF
   async function initializeLiff() {
     try {
       await liff.init({ liffId });
@@ -191,7 +267,6 @@
     }
   }
 
-  // ให้ addToCart กับฟังก์ชัน global เพื่อเรียกจาก onclick
   window.addToCart = addToCart;
   window.removeFromCart = removeFromCart;
 
@@ -201,3 +276,4 @@
 
 </body>
 </html>
+
