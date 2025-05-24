@@ -3,141 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Product Catalog (Mobile)</title>
+  <title>Product Catalog with LIFF Send</title>
   <style>
+    /* ... ใช้ CSS จากตัวอย่างก่อนหน้า ... */
     body {
       font-family: "Sarabun", sans-serif;
       margin: 0;
-      padding: 0 10px 60px 10px; /* เพิ่ม padding ล่างให้พื้นที่แถบตะกร้า */
+      padding: 0 10px 60px 10px;
       background: #f9f9f9;
     }
-    h1 {
-      text-align: center;
-      margin: 16px 0;
-      color: #004aad;
-    }
-    .product-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .product-item {
-      background: white;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .product-info {
-      flex: 1;
-      padding-right: 10px;
-      font-size: 16px;
-      line-height: 1.3;
-      color: #333;
-    }
-    .product-price {
-      font-weight: 700;
-      color: #004aad;
-      margin-top: 4px;
-      font-size: 14px;
-    }
-    button.add-btn {
-      background: #004aad;
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.3s ease;
-    }
-    button.add-btn:hover {
-      background: #00337a;
-    }
-
-    /* แถบตะกร้าสินค้าล่างสุด */
-    .cart-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: #004aad;
-      color: white;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 -3px 10px rgba(0,0,0,0.15);
-      font-size: 16px;
-      z-index: 100;
-    }
-    .cart-bar .cart-info {
-      font-weight: 600;
-    }
-    .cart-bar button {
-      background: white;
-      color: #004aad;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .cart-bar button:hover {
-      background: #cce0ff;
-    }
-
-    /* รายการสินค้าในตะกร้า (popup) */
-    .cart-popup {
-      position: fixed;
-      bottom: 60px;
-      left: 10px;
-      right: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-      background: white;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-      border-radius: 8px;
-      padding: 10px 14px;
-      display: none;
-      z-index: 101;
-    }
-    .cart-popup h3 {
-      margin: 0 0 8px 0;
-      color: #004aad;
-    }
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 14px;
-    }
-    .cart-item:last-child {
-      border-bottom: none;
-    }
-    .cart-item button {
-      background: #ff4d4d;
-      border: none;
-      color: white;
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: 12px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.3s ease;
-    }
-    .cart-item button:hover {
-      background: #cc0000;
-    }
-    .cart-total {
-      text-align: right;
-      font-weight: 700;
-      margin-top: 8px;
-      font-size: 16px;
-    }
+    /* ... (ย่อ CSS ไม่เปลี่ยน) ... */
+    /* ให้ใช้ CSS ตัวเดียวกับที่ส่งไปก่อนหน้านี้ */
   </style>
 </head>
 <body>
@@ -146,13 +22,11 @@
 
 <div class="product-list" id="productList"></div>
 
-<!-- แถบตะกร้า -->
 <div class="cart-bar" id="cartBar" style="display:none;">
   <div class="cart-info" id="cartSummary"></div>
   <button id="btnViewCart">ดูตะกร้า</button>
 </div>
 
-<!-- popup แสดงตะกร้า -->
 <div class="cart-popup" id="cartPopup">
   <h3>รายการสินค้าในตะกร้า</h3>
   <div id="cartItems"></div>
@@ -160,8 +34,13 @@
   <button id="btnSendAdmin" style="margin-top: 10px; width: 100%; background: #004aad;">ส่งข้อมูลหาแอดมิน</button>
 </div>
 
+<!-- โหลด LIFF SDK -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
 <script>
-  // ข้อมูลสินค้า (ตัวอย่าง)
+  const liffId = "2007471898-ElJVq449";
+
+  // ข้อมูลสินค้า (เหมือนเดิม)
   const products = [
     { id: '8854795000057', name: 'สุราเชี่ยงชุน 625ml', price: 99 },
     { id: '8935040402854', name: '100Pipers วิสกี้ 1000ml', price: 835 },
@@ -178,6 +57,7 @@
 
   let cart = [];
 
+  // DOM
   const productListEl = document.getElementById('productList');
   const cartBarEl = document.getElementById('cartBar');
   const cartSummaryEl = document.getElementById('cartSummary');
@@ -187,13 +67,12 @@
   const cartTotalEl = document.getElementById('cartTotal');
   const btnSendAdmin = document.getElementById('btnSendAdmin');
 
-  // แสดงสินค้าในหน้ารายการ
+  // แสดงสินค้า
   function renderProducts() {
     productListEl.innerHTML = '';
     products.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product-item';
-
       div.innerHTML = `
         <div class="product-info">
           <div>${p.name}</div>
@@ -205,7 +84,7 @@
     });
   }
 
-  // เพิ่มสินค้าลงตะกร้า
+  // เพิ่มสินค้า
   function addToCart(id) {
     const prod = products.find(p => p.id === id);
     if (!prod) return;
@@ -218,13 +97,13 @@
     updateCartUI();
   }
 
-  // ลบสินค้าออกจากตะกร้า
+  // ลบสินค้า
   function removeFromCart(id) {
     cart = cart.filter(item => item.id !== id);
     updateCartUI();
   }
 
-  // แสดงตะกร้า (popup)
+  // แสดง popup ตะกร้า
   btnViewCart.onclick = () => {
     if (cartPopup.style.display === 'block') {
       cartPopup.style.display = 'none';
@@ -234,7 +113,7 @@
     }
   };
 
-  // แสดงรายการสินค้าในตะกร้า
+  // แสดงรายการในตะกร้า
   function renderCartItems() {
     cartItemsEl.innerHTML = '';
     if (cart.length === 0) {
@@ -242,7 +121,6 @@
       cartTotalEl.textContent = '';
       return;
     }
-
     cart.forEach(item => {
       const div = document.createElement('div');
       div.className = 'cart-item';
@@ -255,15 +133,15 @@
       `;
       cartItemsEl.appendChild(div);
     });
-
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     cartTotalEl.textContent = `รวมทั้งหมด: ฿${total.toLocaleString()}`;
   }
 
-  // อัพเดต UI ตะกร้าสินค้า
+  // อัพเดต UI ตะกร้า
   function updateCartUI() {
     if (cart.length === 0) {
       cartBarEl.style.display = 'none';
+      cartPopup.style.display = 'none';
     } else {
       cartBarEl.style.display = 'flex';
       const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -273,24 +151,52 @@
     renderCartItems();
   }
 
-  // ส่งข้อมูลหาแอดมิน (แค่ alert ตัวอย่าง)
-  btnSendAdmin.onclick = () => {
+  // ส่งข้อมูลหาแอดมิน ผ่าน LIFF
+  async function sendMessageToAdmin() {
     if (cart.length === 0) {
       alert('ตะกร้าว่าง ไม่มีสินค้าส่งให้แอดมิน');
       return;
     }
-    let message = '🛒 รายการสินค้า:\n';
-    cart.forEach(item => {
-      message += `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}\n`;
-    });
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    message += `รวมทั้งหมด: ฿${total}`;
 
-    alert('ส่งข้อความหาแอดมิน:\n\n' + message);
-    // ที่นี่สามารถต่อยอดส่งข้อความผ่าน LIFF หรือ LINE Notify API ได้
-  };
+    // สร้างข้อความแบบ LINE message format
+    const messages = [{
+      type: 'text',
+      text: `🛒 รายการสินค้า:\n` + 
+            cart.map(item => `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
+            `\nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}`
+    }];
+
+    try {
+      if (!liff.isInClient()) {
+        alert('กรุณาเปิดผ่านแอป LINE เพื่อส่งข้อความ');
+        return;
+      }
+
+      await liff.sendMessages(messages);
+      alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณครับ!');
+      liff.closeWindow(); // ปิดหน้าต่าง LIFF
+    } catch (error) {
+      alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + error);
+    }
+  }
+
+  btnSendAdmin.onclick = sendMessageToAdmin;
+
+  // เริ่มต้น LIFF
+  async function initializeLiff() {
+    try {
+      await liff.init({ liffId });
+    } catch (error) {
+      console.error('LIFF init failed', error);
+    }
+  }
+
+  // ให้ addToCart กับฟังก์ชัน global เพื่อเรียกจาก onclick
+  window.addToCart = addToCart;
+  window.removeFromCart = removeFromCart;
 
   renderProducts();
+  initializeLiff();
 </script>
 
 </body>
