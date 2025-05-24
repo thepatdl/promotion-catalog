@@ -1,30 +1,58 @@
-<div id="catalog"></div>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Catalog</title>
+  <style>
+    body { font-family: sans-serif; }
+    .catalog { display: flex; flex-wrap: wrap; gap: 16px; padding: 20px; }
+    .product { border: 1px solid #ccc; padding: 10px; width: 200px; border-radius: 8px; }
+    .product img { width: 100%; height: auto; }
+    .product h3 { font-size: 16px; margin: 8px 0 4px; }
+    .product p { margin: 4px 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<h1>แคตตาล็อกสินค้า</h1>
+<div class="catalog" id="catalog"></div>
 
 <script>
-const products = [
-  {
-    name: "สินค้า A",
-    image: "https://example.com/imageA.jpg",
-    price: 100,
-    description: "รายละเอียดสินค้า A"
-  },
-  {
-    name: "สินค้า B",
-    image: "https://example.com/imageB.jpg",
-    price: 200,
-    description: "รายละเอียดสินค้า B"
-  }
-];
+  const products = [
+    { barcode: '8854795000057', name: '(ยกเลิก)สุราเชี่ยงชุน625ml Piece', price: 99 },
+    { barcode: '8935040402854', name: '100Pipersวิสกี้1000ml Piece', price: 835 },
+    { barcode: '8851123794589', name: '12PLUSแป้งเย็นเอ็กซ์ตร้าคลูสีชมพู140g Piece', price: 32 },
+    { barcode: '8851123805414', name: '12PLUSแป้งเย็นไวท์เทนนิ่งสีชมพู140g Piece', price: 32 },
+    { barcode: '8851123782005', name: '12plusโคโลญพ็อคเก็ตชมพู20ml Piece', price: 35 },
+    { barcode: '8851123803533', name: '12plusโคโลญพ็อคเก็ตพาวเดอร์รี่20ml Piece', price: 39 },
+    { barcode: '8851123782029', name: '12plusโคโลญพ็อคเก็ตม่วง20ml Piece', price: 35 },
+    { barcode: '8851123389112', name: '12plusโคโลญมอยส์เจอร์ชมพู45ml Piece', price: 50 },
+    { barcode: '8851123383110', name: '12plusโรลออนคอลลาเจนโกวล์32.5ml Piece', price: 49 },
+    { barcode: '8851123809009', name: '12plusโรลออนดับเบิ้ลไวท์ชมพู25ml Piece', price: 49 },
+    { barcode: '8851123789028', name: '12plusโรลออนฟรุ้ตตี้ไบร์ท32.5ml Piece', price: 49 },
+  ];
 
-const container = document.getElementById('catalog');
-products.forEach(product => {
-  const card = document.createElement('div');
-  card.innerHTML = `
-    <img src="${product.image}" alt="${product.name}" width="200" />
-    <h3>${product.name}</h3>
-    <p>${product.description}</p>
-    <p>ราคา: ฿${product.price}</p>
-  `;
-  container.appendChild(card);
-});
+  const catalog = document.getElementById("catalog");
+
+  products.forEach(product => {
+    const item = document.createElement("div");
+    item.className = "product";
+
+    // สมมติใช้ Barcode หา image จากระบบที่มี หรือใช้เป็น placeholder ไปก่อน
+    const imageURL = `https://via.placeholder.com/200x200.png?text=${product.barcode}`;
+
+    item.innerHTML = `
+      <img src="${imageURL}" alt="${product.name}">
+      <h3>${product.name}</h3>
+      <p>บาร์โค้ด: ${product.barcode}</p>
+      <p>ราคา: ฿${product.price}</p>
+    `;
+
+    catalog.appendChild(item);
+  });
 </script>
+
+</body>
+</html>
+
