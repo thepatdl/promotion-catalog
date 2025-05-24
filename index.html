@@ -173,10 +173,10 @@
     { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, promoPrice: 20, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, promoPrice: 40, buyOneGetOne: true, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, promoPrice: 50, buyOneGetOne: true, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, promoPrice: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
   ];
 
   let cart = [];
@@ -248,7 +248,7 @@
 
     cart.forEach(item => {
       const div = document.createElement('div');
-    div.className = 'cart-item';
+      div.className = 'cart-item';
       div.innerHTML = `
         <div>${item.name}</div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -289,15 +289,11 @@
         </div>
       `;
       cartItemsEl.appendChild(div);
-  });
+    });
 
-   const subtotal = cart.reduce((sum, item) => {
-  let qtyToCharge = item.quantity;
-  if (item.buyOneGetOne) {
-    qtyToCharge = Math.ceil(item.quantity / 2); // ซื้อ 1 แถม 1
-  }
-  return sum + item.price * qtyToCharge;
-}, 0);
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let total = subtotal;
+    let shippingFee = 0;
 
     if (subtotal < 200) {
       shippingFee = 20;
@@ -344,53 +340,47 @@
     }
   }
 
- btnSendAdmin.onclick = async () => {
-  if (cart.length === 0) {
-    alert('กรุณาเพิ่มสินค้าก่อนส่ง');
-    return;
-  }
-
-  let message = '📦 รายการสั่งซื้อ:\n';
-  let subtotal = 0;
-
-  cart.forEach(item => {
-    let qtyToCharge = item.quantity;
-    if (item.buyOneGetOne) {
-      qtyToCharge = Math.ceil(item.quantity / 2);
-    }
-    const totalItemPrice = item.price * qtyToCharge;
-    subtotal += totalItemPrice;
-
-    message += `• ${item.name} × ${item.quantity} = ฿${totalItemPrice.toLocaleString()}\n`;
-  });
-
-  const shippingFee = subtotal < 200 ? 20 : 0;
-  const total = subtotal + shippingFee;
-
-  message += `\n🧾 ยอดสินค้า: ฿${subtotal.toLocaleString()}`;
-  message += `\n🚚 ค่าจัดส่ง: ${shippingFee === 0 ? 'ฟรี' : `฿${shippingFee.toLocaleString()}`}`;
-  message += `\n💰 รวมทั้งหมด: ฿${total.toLocaleString()}`;
-
-  try {
-    await liff.init({ liffId });
-    if (!liff.isLoggedIn()) {
-      liff.login();
+  btnSendAdmin.onclick = async () => {
+    if (cart.length === 0) {
+      alert('กรุณาเพิ่มสินค้าก่อนส่ง');
       return;
     }
-    await liff.sendMessages([
-      {
-        type: 'text',
-        text: message
+
+    let message = 'รายการสั่งซื้อ:\n';
+    cart.forEach(item => {
+      message += `- ${item.name} x${item.quantity} = ฿${(item.price * item.quantity).toLocaleString()}\n`;
+    });
+
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let total = subtotal;
+    if (subtotal < 200) total += 20;
+
+    message += `ยอดรวม: ฿${total.toLocaleString()}\n`;
+    if (subtotal < 200) message += `ค่าจัดส่ง: ฿20\n`;
+    else message += `ค่าจัดส่ง: ฟรี\n`;
+
+    try {
+      await liff.init({ liffId });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
       }
-    ]);
-    alert('ส่งข้อมูลเรียบร้อยแล้ว!');
-    cart = [];
-    updateCartUI();
-  } catch (err) {
-    console.error(err);
-    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-  }
-};
+      await liff.sendMessages([
+        {
+          type: 'text',
+          text: message,
+        }
+      ]);
+      alert('ส่งข้อความเรียบร้อย');
+      // เคลียร์ตะกร้า
+      cart = [];
+      updateCartUI();
+      cartPopup.style.display = 'none';
+    } catch (error) {
+      alert('ส่งข้อความล้มเหลว โปรดลองอีกครั้ง');
+      console.error(error);
+    }
+  };
 
   // โหลดตะกร้าจาก localStorage
   function loadCart() {
