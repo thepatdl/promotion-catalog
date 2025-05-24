@@ -2,57 +2,121 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product Catalog</title>
   <style>
-    body { font-family: sans-serif; }
-    .catalog { display: flex; flex-wrap: wrap; gap: 16px; padding: 20px; }
-    .product { border: 1px solid #ccc; padding: 10px; width: 200px; border-radius: 8px; }
-    .product img { width: 100%; height: auto; }
-    .product h3 { font-size: 16px; margin: 8px 0 4px; }
-    .product p { margin: 4px 0; font-size: 14px; }
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .catalog {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .product-card {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .product-code {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .product-price {
+      color: green;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .add-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .add-button:hover {
+      background-color: #0056b3;
+    }
+
+    #cart-message {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: darkgreen;
+    }
   </style>
 </head>
 <body>
 
-<h1>แคตตาล็อกสินค้า</h1>
-<div class="catalog" id="catalog"></div>
+  <h1>แคตตาล็อกสินค้า</h1>
+  <div class="catalog" id="catalog"></div>
+  <div id="cart-message"></div>
 
-<script>
-  const products = [
-    { barcode: '8854795000057', name: '(ยกเลิก)สุราเชี่ยงชุน625ml Piece', price: 99 },
-    { barcode: '8935040402854', name: '100Pipersวิสกี้1000ml Piece', price: 835 },
-    { barcode: '8851123794589', name: '12PLUSแป้งเย็นเอ็กซ์ตร้าคลูสีชมพู140g Piece', price: 32 },
-    { barcode: '8851123805414', name: '12PLUSแป้งเย็นไวท์เทนนิ่งสีชมพู140g Piece', price: 32 },
-    { barcode: '8851123782005', name: '12plusโคโลญพ็อคเก็ตชมพู20ml Piece', price: 35 },
-    { barcode: '8851123803533', name: '12plusโคโลญพ็อคเก็ตพาวเดอร์รี่20ml Piece', price: 39 },
-    { barcode: '8851123782029', name: '12plusโคโลญพ็อคเก็ตม่วง20ml Piece', price: 35 },
-    { barcode: '8851123389112', name: '12plusโคโลญมอยส์เจอร์ชมพู45ml Piece', price: 50 },
-    { barcode: '8851123383110', name: '12plusโรลออนคอลลาเจนโกวล์32.5ml Piece', price: 49 },
-    { barcode: '8851123809009', name: '12plusโรลออนดับเบิ้ลไวท์ชมพู25ml Piece', price: 49 },
-    { barcode: '8851123789028', name: '12plusโรลออนฟรุ้ตตี้ไบร์ท32.5ml Piece', price: 49 },
-  ];
+  <script>
+    const productData = [
+      { code: "8854795000057", name: "(ยกเลิก)สุราเชี่ยงชุน625ml Piece", price: 99 },
+      { code: "8935040402854", name: "100Pipersวิสกี้1000ml Piece", price: 835 },
+      { code: "8851123794589", name: "12PLUSแป้งเย็นเอ็กซ์ตร้าคลูสีชมพู140g Piece", price: 32 },
+      { code: "8851123805414", name: "12PLUSแป้งเย็นไวท์เทนนิ่งสีชมพู140g Piece", price: 32 },
+      { code: "8851123782005", name: "12plusโคโลญพ็อคเก็ตชมพู20ml Piece", price: 35 },
+      { code: "8851123803533", name: "12plusโคโลญพ็อคเก็ตพาวเดอร์รี่20ml Piece", price: 39 },
+      { code: "8851123782029", name: "12plusโคโลญพ็อคเก็ตม่วง20ml Piece", price: 35 },
+      { code: "8851123389112", name: "12plusโคโลญมอยส์เจอร์ชมพู45ml Piece", price: 50 },
+      { code: "8851123383110", name: "12plusโรลออนคอลลาเจนโกวล์32.5ml Piece", price: 49 },
+      { code: "8851123809009", name: "12plusโรลออนดับเบิ้ลไวท์ชมพู25ml Piece", price: 49 },
+      { code: "8851123789028", name: "12plusโรลออนฟรุ้ตตี้ไบร์ท32.5ml Piece", price: 49 }
+    ];
 
-  const catalog = document.getElementById("catalog");
+    const catalog = document.getElementById('catalog');
+    const cartMessage = document.getElementById('cart-message');
 
-  products.forEach(product => {
-    const item = document.createElement("div");
-    item.className = "product";
+    function addToCart(product) {
+      cartMessage.innerText = `✅ เพิ่ม "${product.name}" เข้าตะกร้าเรียบร้อยแล้ว!`;
+      setTimeout(() => cartMessage.innerText = '', 3000);
+    }
 
-    // สมมติใช้ Barcode หา image จากระบบที่มี หรือใช้เป็น placeholder ไปก่อน
-    const imageURL = `https://via.placeholder.com/200x200.png?text=${product.barcode}`;
+    productData.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
 
-    item.innerHTML = `
-      <img src="${imageURL}" alt="${product.name}">
-      <h3>${product.name}</h3>
-      <p>บาร์โค้ด: ${product.barcode}</p>
-      <p>ราคา: ฿${product.price}</p>
-    `;
+      card.innerHTML = `
+        <div class="product-name">${product.name}</div>
+        <div class="product-code">รหัส: ${product.code}</div>
+        <div class="product-price">ราคา: ฿${product.price}</div>
+        <button class="add-button">หยิบใส่ตะกร้า</button>
+      `;
 
-    catalog.appendChild(item);
-  });
-</script>
+      card.querySelector('.add-button').addEventListener('click', () => addToCart(product));
+      catalog.appendChild(card);
+    });
+  </script>
 
 </body>
 </html>
-
