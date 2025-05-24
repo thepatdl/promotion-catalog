@@ -14,7 +14,7 @@
     h1 {
       text-align: center;
       padding: 20px 0;
-      color: #2e7d32;
+      color: #004aad;
     }
     .product-list {
       display: grid;
@@ -47,7 +47,7 @@
       margin-top: 4px;
     }
     .add-btn {
-      background: #2e7d32;
+      background: #004aad;
       color: white;
       border: none;
       padding: 6px 12px;
@@ -59,7 +59,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background: #2e7d32;
+      background: #004aad;
       color: white;
       display: flex;
       justify-content: space-between;
@@ -97,7 +97,7 @@
       margin-top: 10px;
     }
     #btnSendAdmin {
-      background: #2e7d32;
+      background: #004aad;
       color: white;
       padding: 10px;
       border: none;
@@ -160,14 +160,14 @@
     products.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product-item';
-      div.innerHTML = `
+      div.innerHTML = 
         <img src="${p.image}" alt="${p.name}" />
         <div class="product-info">
           <div>${p.name}</div>
           <div class="product-price">฿${p.price.toLocaleString()}</div>
         </div>
         <button class="add-btn" onclick="addToCart('${p.id}')">เพิ่ม</button>
-      `;
+      ;
       productListEl.appendChild(div);
     });
   }
@@ -204,17 +204,17 @@
     cart.forEach(item => {
       const div = document.createElement('div');
       div.className = 'cart-item';
-      div.innerHTML = `
+      div.innerHTML = 
         <div>${item.name} x ${item.quantity}</div>
         <div>
           <span>฿${(item.price * item.quantity).toLocaleString()}</span>
           <button onclick="removeFromCart('${item.id}')">ลบ</button>
         </div>
-      `;
+      ;
       cartItemsEl.appendChild(div);
     });
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    cartTotalEl.textContent = `รวมทั้งหมด: ฿${total.toLocaleString()}`;
+    cartTotalEl.textContent = รวมทั้งหมด: ฿${total.toLocaleString()};
   }
 
   function updateCartUI() {
@@ -225,7 +225,7 @@
       cartBarEl.style.display = 'flex';
       const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
       const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
+      cartSummaryEl.textContent = สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()};
     }
     renderCartItems();
   }
@@ -238,9 +238,9 @@
 
     const messages = [{
       type: 'text',
-      text: `🛒 รายการสินค้า:\n` +
-            cart.map(item => `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
-            `\nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}`
+      text: 🛒 รายการสินค้า:\n +
+            cart.map(item => - ${item.name} x${item.quantity} = ฿${item.price * item.quantity}).join('\n') +
+            \nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}
     }];
 
     try {
@@ -250,7 +250,7 @@
       }
 
       await liff.sendMessages(messages);
-      alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณค่ะ!');
+      alert('ส่งข้อความเรียบร้อยแล้ว ขอบคุณครับ!');
       liff.closeWindow();
     } catch (error) {
       alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + error);
@@ -267,4 +267,12 @@
     }
   }
 
-  window.add
+  window.addToCart = addToCart;
+  window.removeFromCart = removeFromCart;
+
+  renderProducts();
+  initializeLiff();
+</script>
+
+</body>
+</html>
