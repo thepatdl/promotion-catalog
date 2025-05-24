@@ -227,9 +227,11 @@
     const div = document.createElement('div');
     div.className = 'cart-item';
     div.innerHTML = `
-      <div>${item.name} 
-        <input type="number" value="${item.quantity}" min="1" style="width: 50px;" 
-          onchange="updateCartQuantity('${item.id}', this.value)" />
+      <div>
+        ${item.name}
+        <button onclick="changeCartQuantity('${item.id}', -1)">-</button>
+        <span style="margin: 0 8px;">${item.quantity}</span>
+        <button onclick="changeCartQuantity('${item.id}', 1)">+</button>
       </div>
       <div>
         <span>฿${(item.price * item.quantity).toLocaleString()}</span>
@@ -273,6 +275,17 @@
   // ⬇️ Save cart to localStorage
   localStorage.setItem('cart', JSON.stringify(cart));
 
+  renderCartItems();
+}
+
+  function changeCartQuantity(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+
+  item.quantity += delta;
+  if (item.quantity < 1) item.quantity = 1; // ไม่ให้น้อยกว่า 1
+
+  saveCart();
   renderCartItems();
 }
 
