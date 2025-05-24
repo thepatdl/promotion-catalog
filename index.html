@@ -190,7 +190,7 @@
 </head>
 <body>
 
-<h1>โปรโมชัน "พุธถูกสุด"</h1>
+<h1>สินค้าในร้าน CJ Express</h1>
 
 <div class="product-list" id="productList"></div>
 
@@ -329,4 +329,8 @@
     const messages = [{
       type: 'text',
       text: `🛒 รายการสินค้า:\n` + 
-            cart.map(item => `- ${item.name} x${item.quantity
+            cart.map(item => `- ${item.name} x${item.quantity} = ฿${item.price * item.quantity}`).join('\n') +
+            `\nรวมทั้งหมด: ฿${cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}`
+    }];
+    try {
+      if (!liff
