@@ -1,122 +1,223 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <title>Product Catalog</title>
+  <meta charset="UTF-8">
+  <title>แคตตาล็อกสินค้า</title>
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f9f9f9;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .cart-btn::after {
+      content: attr(data-count);
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 30px;
+      margin: 0;
+      font-size: 22px;
     }
 
     .catalog {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
+      padding: 20px;
       justify-content: center;
     }
 
     .product-card {
-      background-color: #fff;
+      background: white;
       padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 250px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 240px;
     }
 
     .product-name {
       font-size: 16px;
       font-weight: bold;
-      margin-bottom: 5px;
     }
 
     .product-code {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 10px;
+      font-size: 13px;
+      color: gray;
+      margin: 5px 0;
     }
 
     .product-price {
       color: green;
       font-weight: bold;
-      margin-bottom: 15px;
     }
 
     .add-button {
-      background-color: #007bff;
+      margin-top: 10px;
+      background: #28a745;
       color: white;
+      padding: 8px;
       border: none;
-      padding: 10px;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s;
     }
 
-    .add-button:hover {
-      background-color: #0056b3;
+    /* Cart Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 99;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
     }
 
-    #cart-message {
-      text-align: center;
-      margin-top: 20px;
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    .close {
+      color: red;
+      float: right;
+      font-size: 28px;
       font-weight: bold;
-      color: darkgreen;
+      cursor: pointer;
+    }
+
+    ul.cart-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul.cart-list li {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
     }
   </style>
 </head>
 <body>
 
+<header>
   <h1>แคตตาล็อกสินค้า</h1>
-  <div class="catalog" id="catalog"></div>
-  <div id="cart-message"></div>
+  <button class="cart-btn" id="openCart" data-count="0">🛒</button>
+</header>
 
-  <script>
-    const productData = [
-      { code: "8854795000057", name: "(ยกเลิก)สุราเชี่ยงชุน625ml Piece", price: 99 },
-      { code: "8935040402854", name: "100Pipersวิสกี้1000ml Piece", price: 835 },
-      { code: "8851123794589", name: "12PLUSแป้งเย็นเอ็กซ์ตร้าคลูสีชมพู140g Piece", price: 32 },
-      { code: "8851123805414", name: "12PLUSแป้งเย็นไวท์เทนนิ่งสีชมพู140g Piece", price: 32 },
-      { code: "8851123782005", name: "12plusโคโลญพ็อคเก็ตชมพู20ml Piece", price: 35 },
-      { code: "8851123803533", name: "12plusโคโลญพ็อคเก็ตพาวเดอร์รี่20ml Piece", price: 39 },
-      { code: "8851123782029", name: "12plusโคโลญพ็อคเก็ตม่วง20ml Piece", price: 35 },
-      { code: "8851123389112", name: "12plusโคโลญมอยส์เจอร์ชมพู45ml Piece", price: 50 },
-      { code: "8851123383110", name: "12plusโรลออนคอลลาเจนโกวล์32.5ml Piece", price: 49 },
-      { code: "8851123809009", name: "12plusโรลออนดับเบิ้ลไวท์ชมพู25ml Piece", price: 49 },
-      { code: "8851123789028", name: "12plusโรลออนฟรุ้ตตี้ไบร์ท32.5ml Piece", price: 49 }
-    ];
+<div class="catalog" id="catalog"></div>
 
-    const catalog = document.getElementById('catalog');
-    const cartMessage = document.getElementById('cart-message');
+<!-- Modal Cart -->
+<div id="cartModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeCart">&times;</span>
+    <h2>สินค้าที่อยู่ในตะกร้า</h2>
+    <ul class="cart-list" id="cartList"></ul>
+  </div>
+</div>
 
-    function addToCart(product) {
-      cartMessage.innerText = `✅ เพิ่ม "${product.name}" เข้าตะกร้าเรียบร้อยแล้ว!`;
-      setTimeout(() => cartMessage.innerText = '', 3000);
-    }
+<script>
+  const productData = [
+    { code: "8854795000057", name: "(ยกเลิก)สุราเชี่ยงชุน625ml Piece", price: 99 },
+    { code: "8935040402854", name: "100Pipersวิสกี้1000ml Piece", price: 835 },
+    { code: "8851123794589", name: "12PLUSแป้งเย็นเอ็กซ์ตร้าคลูสีชมพู140g Piece", price: 32 },
+    { code: "8851123805414", name: "12PLUSแป้งเย็นไวท์เทนนิ่งสีชมพู140g Piece", price: 32 },
+    { code: "8851123782005", name: "12plusโคโลญพ็อคเก็ตชมพู20ml Piece", price: 35 },
+    { code: "8851123803533", name: "12plusโคโลญพ็อคเก็ตพาวเดอร์รี่20ml Piece", price: 39 },
+    { code: "8851123782029", name: "12plusโคโลญพ็อคเก็ตม่วง20ml Piece", price: 35 },
+    { code: "8851123389112", name: "12plusโคโลญมอยส์เจอร์ชมพู45ml Piece", price: 50 },
+    { code: "8851123383110", name: "12plusโรลออนคอลลาเจนโกวล์32.5ml Piece", price: 49 },
+    { code: "8851123809009", name: "12plusโรลออนดับเบิ้ลไวท์ชมพู25ml Piece", price: 49 },
+    { code: "8851123789028", name: "12plusโรลออนฟรุ้ตตี้ไบร์ท32.5ml Piece", price: 49 }
+  ];
 
-    productData.forEach(product => {
-      const card = document.createElement('div');
-      card.className = 'product-card';
+  const cart = [];
 
-      card.innerHTML = `
-        <div class="product-name">${product.name}</div>
-        <div class="product-code">รหัส: ${product.code}</div>
-        <div class="product-price">ราคา: ฿${product.price}</div>
-        <button class="add-button">หยิบใส่ตะกร้า</button>
-      `;
+  const catalog = document.getElementById("catalog");
+  const cartBtn = document.getElementById("openCart");
+  const cartList = document.getElementById("cartList");
+  const cartModal = document.getElementById("cartModal");
+  const closeCart = document.getElementById("closeCart");
 
-      card.querySelector('.add-button').addEventListener('click', () => addToCart(product));
-      catalog.appendChild(card);
+  function updateCartIcon() {
+    cartBtn.setAttribute("data-count", cart.length);
+  }
+
+  function renderCart() {
+    cartList.innerHTML = "";
+    cart.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} - ฿${item.price}`;
+      cartList.appendChild(li);
     });
-  </script>
+  }
+
+  function addToCart(product) {
+    cart.push(product);
+    updateCartIcon();
+    renderCart();
+  }
+
+  productData.forEach(product => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    card.innerHTML = `
+      <div class="product-name">${product.name}</div>
+      <div class="product-code">รหัส: ${product.code}</div>
+      <div class="product-price">ราคา: ฿${product.price}</div>
+      <button class="add-button">หยิบใส่ตะกร้า</button>
+    `;
+
+    card.querySelector(".add-button").addEventListener("click", () => addToCart(product));
+    catalog.appendChild(card);
+  });
+
+  cartBtn.addEventListener("click", () => {
+    cartModal.style.display = "block";
+  });
+
+  closeCart.addEventListener("click", () => {
+    cartModal.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === cartModal) {
+      cartModal.style.display = "none";
+    }
+  });
+</script>
 
 </body>
 </html>
