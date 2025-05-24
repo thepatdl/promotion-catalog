@@ -67,6 +67,20 @@
       padding: 10px;
       z-index: 100;
     }
+    .view-cart-btn {
+      background: white;
+      color: #00aa4f;
+      border: 2px solid white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+    }
+    .view-cart-btn:hover {
+      background: #ffffffcc;
+      color: #007f3e;
+    }
     .cart-popup {
       display: none;
       position: fixed;
@@ -114,7 +128,7 @@
 
 <div class="cart-bar" id="cartBar" style="display:none;">
   <div class="cart-info" id="cartSummary"></div>
-  <button id="btnViewCart">ดูตะกร้า</button>
+  <button id="btnViewCart" class="view-cart-btn">ดูตะกร้า</button>
 </div>
 
 <div class="cart-popup" id="cartPopup">
