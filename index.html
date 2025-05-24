@@ -96,6 +96,12 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
       z-index: 99;
     }
+    .cart-popup h3 {
+      margin: 0 0 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
     .cart-item {
       display: flex;
       justify-content: space-between;
@@ -109,7 +115,6 @@
       padding: 2px 6px;
       border-radius: 6px;
       cursor: pointer;
-      margin-left: 10px;
     }
     .cart-total > div {
       margin-top: 4px;
@@ -141,7 +146,10 @@
 </div>
 
 <div class="cart-popup" id="cartPopup">
-  <h3>รายการสินค้าในตะกร้า</h3>
+  <h3>
+    รายการสินค้าในตะกร้า
+    <button id="btnCloseCart" style="background:none; border:none; font-size:18px; cursor:pointer;">✖️</button>
+  </h3>
   <div id="cartItems"></div>
   <div class="cart-total" id="cartTotal"></div>
   <button id="btnSendAdmin" style="margin-top: 10px; width: 100%;">ส่งข้อมูลหาแอดมิน</button>
@@ -177,6 +185,7 @@
   const cartItemsEl = document.getElementById('cartItems');
   const cartTotalEl = document.getElementById('cartTotal');
   const btnSendAdmin = document.getElementById('btnSendAdmin');
+  const btnCloseCart = document.getElementById('btnCloseCart');
 
   function renderProducts() {
     productListEl.innerHTML = '';
@@ -195,184 +204,108 @@
     });
   }
 
-  function addToCart(id) {
-    const prod = products.find(p => p.id === id);
-    if (!prod) return;
-    const cartItem = cart.find(item => item.id === id);
-    if (cartItem) {
-      cartItem.quantity++;
+  function addToCart(productId) {
+    const item = cart.find(i => i.id === productId);
+    if (item) {
+      item.qty++;
     } else {
-      cart.push({ ...prod, quantity: 1 });
+      const prod = products.find(p => p.id === productId);
+      cart.push({ ...prod, qty: 1 });
     }
-    updateCartUI();
+    updateCartBar();
   }
 
-  function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    updateCartUI();
+  function updateCartBar() {
+    if (cart.length > 0) {
+      cartBarEl.style.display = 'flex';
+      const totalQty = cart.reduce((a,c) => a + c.qty, 0);
+      const totalPrice = cart.reduce((a,c) => a + c.price * c.qty, 0);
+      cartSummaryEl.textContent = `สินค้า ${totalQty} ชิ้น รวม ${totalPrice.toLocaleString()} บาท`;
+    } else {
+      cartBarEl.style.display = 'none';
+      cartPopup.style.display = 'none'; // ซ่อน popup ถ้าตะกร้าว่าง
+    }
   }
-
-  btnViewCart.onclick = () => {
-    cartPopup.style.display = cartPopup.style.display === 'block' ? 'none' : 'block';
-    renderCartItems();
-  };
 
   function renderCartItems() {
     cartItemsEl.innerHTML = '';
     if (cart.length === 0) {
-      cartItemsEl.innerHTML = '<p>ตะกร้าว่างเปล่า</p>';
+      cartItemsEl.innerHTML = '<p>ไม่มีสินค้าในตะกร้า</p>';
       cartTotalEl.textContent = '';
       return;
     }
-
     cart.forEach(item => {
       const div = document.createElement('div');
       div.className = 'cart-item';
       div.innerHTML = `
-        <div>${item.name}</div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <button onclick="changeCartQuantity('${item.id}', -1)" style="
-            background-color: transparent;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            color: #333;
-            cursor: pointer;
-          ">−</button>
-
-          <div style="
-            width: 40px;
-            text-align: center;
-            font-weight: bold;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            padding: 5px 0;
-          ">
-            ${item.quantity}
-          </div>
-
-          <button onclick="changeCartQuantity('${item.id}', 1)" style="
-            background-color: transparent;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            color: #333;
-            cursor: pointer;
-          ">+</button>
-
-          <span style="margin-left: auto; font-weight: bold;">฿${(item.price * item.quantity).toLocaleString()}</span>
-
+        <div>${item.name} x ${item.qty}</div>
+        <div>
           <button onclick="removeFromCart('${item.id}')">ลบ</button>
         </div>
       `;
       cartItemsEl.appendChild(div);
     });
-
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    let total = subtotal;
-    let shippingFee = 0;
-
-    if (subtotal < 200) {
-      shippingFee = 20;
-      total += shippingFee;
-      cartTotalEl.innerHTML = `
-        <div>ยอดสินค้า: ฿${subtotal.toLocaleString()}</div>
-        <div>ค่าจัดส่ง: ฿${shippingFee.toLocaleString()}</div>
-        <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
-      `;
-    } else {
-      cartTotalEl.innerHTML = `
-        <div>ค่าจัดส่ง: ฟรี</div>
-        <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
-      `;
-    }
+    const totalPrice = cart.reduce((a,c) => a + c.price * c.qty, 0);
+    cartTotalEl.innerHTML = `<strong>รวมทั้งสิ้น: ${totalPrice.toLocaleString()} บาท</strong>`;
   }
 
-  function updateCartUI() {
-    if (cart.length === 0) {
-      cartBarEl.style.display = 'none';
+  function removeFromCart(productId) {
+    cart = cart.filter(i => i.id !== productId);
+    renderCartItems();
+    updateCartBar();
+  }
+
+  btnViewCart.onclick = () => {
+    if (cartPopup.style.display === 'block') {
       cartPopup.style.display = 'none';
     } else {
-      cartBarEl.style.display = 'flex';
-      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      cartSummaryEl.textContent = `สินค้า ${totalItems} ชิ้น | รวม ฿${totalPrice.toLocaleString()}`;
+      cartPopup.style.display = 'block';
+      renderCartItems();
     }
+  };
 
-    // Save cart to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
-
-    renderCartItems();
-  }
-
-  function changeCartQuantity(id, delta) {
-    const item = cart.find(i => i.id === id);
-    if (!item) return;
-
-    item.quantity += delta;
-    if (item.quantity < 1) item.quantity = 1;
-
-    updateCartUI();
-  }
+  btnCloseCart.onclick = () => {
+    cartPopup.style.display = 'none';
+  };
 
   btnSendAdmin.onclick = () => {
     if (cart.length === 0) {
-      alert('กรุณาเพิ่มสินค้าในตะกร้าก่อนส่ง');
+      alert('กรุณาเพิ่มสินค้าก่อนส่งข้อมูล');
       return;
     }
 
-    const lineMessage = cart.map(i => `${i.name} x${i.quantity} = ฿${(i.price * i.quantity).toLocaleString()}`).join('\n');
-    const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const shippingFee = subtotal < 200 ? 20 : 0;
-    const total = subtotal + shippingFee;
+    const messageLines = cart.map(item => `${item.name} x ${item.qty}`);
+    const totalPrice = cart.reduce((a,c) => a + c.price * c.qty, 0);
+    messageLines.push(`รวมทั้งสิ้น: ${totalPrice.toLocaleString()} บาท`);
 
-    const message = `
-*สรุปยอดสั่งซื้อ*
-${lineMessage}
+    const message = `📦 รายการสั่งซื้อ\n` + messageLines.join('\n');
 
-ยอดสินค้า: ฿${subtotal.toLocaleString()}
-ค่าจัดส่ง: ฿${shippingFee.toLocaleString()}
-รวมทั้งหมด: ฿${total.toLocaleString()}
-`;
-
-    liff.sendMessages([{
-      type: 'text',
-      text: message
-    }])
-    .then(() => {
-      alert('ส่งข้อความถึงแอดมินเรียบร้อย');
-      // เคลียร์ตะกร้า
-      cart = [];
-      updateCartUI();
-    })
-    .catch((error) => {
-      alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + error.message);
-    });
+    liff.sendMessages([{ type: 'text', text: message }])
+      .then(() => {
+        alert('ส่งข้อความหาแอดมินเรียบร้อย');
+        cart = [];
+        updateCartBar();
+        cartPopup.style.display = 'none';
+      })
+      .catch(err => {
+        alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + err);
+      });
   };
 
-  function init() {
-    renderProducts();
-
-    // โหลดตะกร้าจาก localStorage
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      cart = JSON.parse(savedCart);
+  async function initializeLiff() {
+    try {
+      await liff.init({ liffId });
+    } catch (err) {
+      alert('LIFF Initialization failed: ' + err);
     }
-
-    updateCartUI();
-
-    liff.init({ liffId })
-      .then(() => {
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        }
-      })
-      .catch(console.error);
   }
 
-  window.onload = init;
+  renderProducts();
+  updateCartBar();
+  initializeLiff();
+
+  window.addToCart = addToCart;
+  window.removeFromCart = removeFromCart;
 </script>
 
 </body>
