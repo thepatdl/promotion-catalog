@@ -173,10 +173,10 @@
     { id: '8851123782005', name: '12PLUS โคโลญพ็อคเก็ตชมพู', price: 35, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123803533', name: '12PLUS โคโลญพาวเดอร์รี่', price: 39, promoPrice: 30, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123782029', name: '12PLUS โคโลญม่วง', price: 35, promoPrice: 20, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
+    { id: '8851123389112', name: '12PLUS โคโลญมอยส์เจอร์ชมพู', price: 50, promoPrice: 40, buyOneGetOne: true, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123383110', name: '12PLUS โรลออนคอลลาเจนโกลด์', price: 49, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
     { id: '8851123809009', name: '12PLUS โรลออนดับเบิ้ลไวท์ชมพู', price: 49, promoPrice: 40, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' },
-    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, promoPrice: 50, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
+    { id: '8851123789028', name: '12PLUS โรลออนฟรุ้ตตี้ไบร์ท', price: 49, promoPrice: 50, buyOneGetOne: true, image: 'https://storage.googleapis.com/product-master-image-non-prod/8851111419425.jpg' }
   ];
 
   let cart = [];
@@ -291,9 +291,13 @@
       cartItemsEl.appendChild(div);
     });
 
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    let total = subtotal;
-    let shippingFee = 0;
+   const subtotal = cart.reduce((sum, item) => {
+  let qtyToCharge = item.quantity;
+  if (item.buyOneGetOne) {
+    qtyToCharge = Math.ceil(item.quantity / 2); // ซื้อ 1 แถม 1
+  }
+  return sum + item.price * qtyToCharge;
+}, 0);
 
     if (subtotal < 200) {
       shippingFee = 20;
@@ -348,12 +352,20 @@
 
     let message = 'รายการสั่งซื้อ:\n';
     cart.forEach(item => {
-      message += `- ${item.name} x${item.quantity} = ฿${(item.price * item.quantity).toLocaleString()}\n`;
+      let qtyToCharge = item.quantity;
+if (item.buyOneGetOne) {
+  qtyToCharge = Math.ceil(item.quantity / 2);
+}
+message += `- ${item.name} x${item.quantity} = ฿${(item.price * qtyToCharge).toLocaleString()}${item.buyOneGetOne ? ' (ซื้อ 1 แถม 1)' : ''}\n`;
     });
 
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    let total = subtotal;
-    if (subtotal < 200) total += 20;
+    const subtotal = cart.reduce((sum, item) => {
+  let qtyToCharge = item.quantity;
+  if (item.buyOneGetOne) {
+    qtyToCharge = Math.ceil(item.quantity / 2); // ซื้อ 1 แถม 1
+  }
+  return sum + item.price * qtyToCharge;
+}, 0);
 
     message += `ยอดรวม: ฿${total.toLocaleString()}\n`;
     if (subtotal < 200) message += `ค่าจัดส่ง: ฿20\n`;
