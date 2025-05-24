@@ -8,9 +8,10 @@
     body {
       font-family: "Sarabun", sans-serif;
       margin: 0;
-      padding: 0 10px 60px 10px;
+      padding-bottom: 60px; /* ลบ padding ซ้ายขวาออก */
       background: #f9f9f9;
     }
+
     h1 {
       text-align: center;
       padding: 20px 0;
@@ -64,9 +65,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 16px;
+      padding: 10px 10px; /* ซ้ายขวาเว้นพอดี */
+      box-sizing: border-box; /* สำคัญมาก! เพื่อให้ padding อยู่ภายในขนาด 100% */
       z-index: 100;
     }
+
     .view-cart-btn {
       background: white;
       color: #00aa4f;
