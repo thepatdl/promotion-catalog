@@ -223,20 +223,54 @@
     return;
   }
 
-  cart.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'cart-item';
-    div.innerHTML = `
-      <div>
-        ${item.name}
-        <button onclick="changeCartQuantity('${item.id}', -1)">-</button>
-        <span style="margin: 0 8px;">${item.quantity}</span>
-        <button onclick="changeCartQuantity('${item.id}', 1)">+</button>
-      </div>
-      <div>
-        <span>฿${(item.price * item.quantity).toLocaleString()}</span>
-        <button onclick="removeFromCart('${item.id}')">ลบ</button>
-      </div>
+  div.innerHTML = `
+  <div>${item.name}</div>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <button onclick="changeCartQuantity('${item.id}', -1)" style="
+      background-color: transparent;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 30px;
+      height: 30px;
+      color: #333;
+      cursor: pointer;
+    ">−</button>
+
+    <div style="
+      width: 40px;
+      text-align: center;
+      font-weight: bold;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      padding: 5px 0;
+    ">
+      ${item.quantity}
+    </div>
+
+    <button onclick="changeCartQuantity('${item.id}', 1)" style="
+      background-color: transparent;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 30px;
+      height: 30px;
+      color: #333;
+      cursor: pointer;
+    ">+</button>
+
+    <span style="margin-left: auto; font-weight: bold;">฿${(item.price * item.quantity).toLocaleString()}</span>
+
+    <button onclick="removeFromCart('${item.id}')" style="
+      background: red;
+      color: white;
+      border: none;
+      padding: 2px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+    ">ลบ</button>
+  </div>
+`;
+     
     `;
     cartItemsEl.appendChild(div);
   });
