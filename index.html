@@ -344,55 +344,50 @@
     }
   }
 
-  btnSendAdmin.onclick = async () => {
-    if (cart.length === 0) {
-      alert('กรุณาเพิ่มสินค้าก่อนส่ง');
-      return;
-    }
+ btnSendAdmin.onclick = async () => {
+  if (cart.length === 0) {
+    alert('กรุณาเพิ่มสินค้าก่อนส่ง');
+    return;
+  }
 
-    let message = 'รายการสั่งซื้อ:\n';
-    cart.forEach(item => {
-      let qtyToCharge = item.quantity;
-if (item.buyOneGetOne) {
-  qtyToCharge = Math.ceil(item.quantity / 2);
-}
-message += `- ${item.name} x${item.quantity} = ฿${(item.price * qtyToCharge).toLocaleString()}${item.buyOneGetOne ? ' (ซื้อ 1 แถม 1)' : ''}\n`;
-    });
-
-    const subtotal = cart.reduce((sum, item) => {
+  let message = '📦 รายการสั่งซื้อ:\n';
+  const subtotal = cart.reduce((sum, item) => {
   let qtyToCharge = item.quantity;
   if (item.buyOneGetOne) {
-    qtyToCharge = Math.ceil(item.quantity / 2); // ซื้อ 1 แถม 1
+    qtyToCharge = Math.ceil(item.quantity / 2);
   }
   return sum + item.price * qtyToCharge;
 }, 0);
 
-    message += `ยอดรวม: ฿${total.toLocaleString()}\n`;
-    if (subtotal < 200) message += `ค่าจัดส่ง: ฿20\n`;
-    else message += `ค่าจัดส่ง: ฟรี\n`;
+let shippingFee = subtotal < 200 ? 20 : 0;
+let total = subtotal + shippingFee;
 
-    try {
-      await liff.init({ liffId });
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-      }
-      await liff.sendMessages([
-        {
-          type: 'text',
-          text: message,
-        }
-      ]);
-      alert('ส่งข้อความเรียบร้อย');
-      // เคลียร์ตะกร้า
-      cart = [];
-      updateCartUI();
-      cartPopup.style.display = 'none';
-    } catch (error) {
-      alert('ส่งข้อความล้มเหลว โปรดลองอีกครั้ง');
-      console.error(error);
+cartTotalEl.innerHTML = `
+  <div>ยอดสินค้า: ฿${subtotal.toLocaleString()}</div>
+  <div>ค่าจัดส่ง: ${shippingFee === 0 ? 'ฟรี' : `฿${shippingFee.toLocaleString()}`}</div>
+  <div><strong>รวมทั้งหมด: ฿${total.toLocaleString()}</strong></div>
+`;
+
+  try {
+    await liff.init({ liffId });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
     }
-  };
+    await liff.sendMessages([
+      {
+        type: 'text',
+        text: message
+      }
+    ]);
+    alert('ส่งข้อมูลเรียบร้อยแล้ว!');
+    cart = [];
+    updateCartUI();
+  } catch (err) {
+    console.error(err);
+    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+  }
+};
 
   // โหลดตะกร้าจาก localStorage
   function loadCart() {
